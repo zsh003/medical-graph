@@ -1,4 +1,4 @@
-from flask import Flask, jsonify, Blueprint
+from flask import Flask, jsonify, Blueprint, request
 from neo4j import GraphDatabase
 from flask_cors import CORS
 app = Flask(__name__)
@@ -67,5 +67,41 @@ def graph_data():
     return jsonify(data), 200
 
 
-if __name__ == '__main__':
-    app.run(debug=True, port=5000)
+# 添加节点的接口
+@graph.route('/add_node', methods=['POST'])
+def add_node():
+    data = request.get_json()
+    name = data.get('name')
+    group = data.get('group')
+    node_type = data.get('type')
+
+    if not name or not group or not node_type:
+        return jsonify({"error": "Missing required fields"}), 400
+
+    query = """
+    CREATE (n:{group} {name: $name, type: $type})
+    """.format(group=group)
+
+    with driver.session() as session:
+        session.run(query, {"name": name, "type": node_type})
+    return jsonify({"message": "Node added successfully"}), 201
+
+
+# 添加关系的接口
+@graph.route('/add_relation', methods=['POST'])
+def add_relation():
+    data = request.get_json()
+    start_node_name = data.get('start_node_name')
+    end_node_name = data.get('end_node_name')
+    relation_type = data.get('relation_type')
+
+    if not start_node_name or not end_node_name or not relation_type:
+        return jsonify({"error": "Missing required fields"}), 400
+
+    query = """
+    MATCH (a),(b) WHERE a.name = $start AND b.name = $end CREATE (a)-[r:%s]->(b)
+    """ % relation_type
+
+    with driver.session() as session:
+        session.run(query, {"start": start_node_name, "end": end_node_name})
+    return jsonify({"message": "Relation added successfully"}), 201

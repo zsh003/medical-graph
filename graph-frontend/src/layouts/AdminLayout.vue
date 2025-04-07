@@ -23,11 +23,11 @@
           </template>
           用户管理
         </a-menu-item>
-        <a-menu-item key="movie-management" class="menu-item">
+        <a-menu-item key="knowledge-management" class="menu-item">
           <template #icon>
             <video-camera-outlined />
           </template>
-          电影管理
+          知识管理
         </a-menu-item>
         <a-menu-item key="recommendation-settings" class="menu-item">
           <template #icon>
@@ -74,8 +74,8 @@ const currentTabComponent = computed(() => {
   switch (selectedKeys.value[0]) {
     case 'user-management':
       return defineAsyncComponent(() => import('../views/admin/UserMangeView.vue'))
-    // case 'movie-management':
-    //   return defineAsyncComponent(() => import('@/views/admin/MovieManageView.vue'))
+    case 'knowledge-management':
+      return defineAsyncComponent(() => import('../views/admin/KnowledgeManage.vue'))
     // case 'recommendation-settings':
     //   return defineAsyncComponent(() => import('@/views/admin/SettingsView.vue'))
     default:
