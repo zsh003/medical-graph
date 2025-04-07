@@ -45,13 +45,16 @@ import {
 import KnowledgeGraph from "../views/KnowledgeGraph.vue";
 import { useRouter } from 'vue-router'
 import {useAuthStore} from "../stores/authStore.js";
+import InfoChange from "../views/InfoChange.vue";
 
 const router = useRouter()
 const authStore = useAuthStore()
 console.log(authStore?.user)
-const selectedKeys = ref<string[]>(['1'])
+const selectedKeys = ref<string[]>(['0'])
 const menuItems = [
   { key: '0', icon: LockOutlined , text: '知识图谱', component: KnowledgeGraph },
+  { key: '1', icon: EditOutlined , text: '修改信息', component: InfoChange },
+
 ]
 // 定义当前要显示的组件
 const currentComponent = ref(null)

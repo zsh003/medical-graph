@@ -48,3 +48,33 @@ def register():
         'success': True,
         'message': 'User registered successfully'
     }), 201
+
+#修改用户信息
+@auth.route('/infoChange', methods=['POST'])
+def infoChange():
+    data = request.get_json()
+    print("data" + str(data))
+    id = data.get('user_id')
+    user = User.query.get(id)
+    print("user", user)
+    user.username = data.get('username')
+    # avatar_url  = user.avatarUrl
+    # 删除对应的头像，删不了一点
+    # static_index = avatar_url.find('/static/')
+    # relative_path = avatar_url[static_index:]
+    # print("delete", relative_path)
+    # if avatar_url and os.path.exists(relative_path):
+    #     print("delete!!!")
+    #     os.remove(avatar_url)
+    user.avatarUrl = data.get('avatar_url')
+    user.phone = data.get('phone')
+    user.email = data.get('email')
+    user.gender = data.get('gender')
+    user.age = data.get('age')
+    user.password = data.get('password')
+    user.tags = data.get('tags')
+    db.session.commit()
+    return jsonify({
+        'success': True,
+        'message': 'User info changed successfully'
+    }), 201
