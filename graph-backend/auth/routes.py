@@ -83,6 +83,7 @@ def infoChange():
     user.age = data.get('age')
     user.password = data.get('password')
     user.tags = data.get('tags')
+    user.truename = data.get('truename')
     db.session.commit()
     return jsonify({
         'success': True,

@@ -29,6 +29,9 @@
         <a-form-item label="用户名" name="username" :rules="[{ required: true, message: '请输入用户名' }]">
           <a-input v-model:value="formState.username" />
         </a-form-item>
+        <a-form-item label="真实名" name="truename">
+          <a-input v-model:value="formState.truename" />
+        </a-form-item>
         <a-form-item label="密码" name="password" :rules="[{ required: true, message: '请输入密码' }]">
           <a-input-password v-model:value="formState.password" />
         </a-form-item>
@@ -46,18 +49,6 @@
         </a-form-item>
         <a-form-item label="手机号" name="phone">
           <a-input v-model:value="formState.phone" />
-        </a-form-item>
-        <a-form-item label="年龄" name="age">
-          <a-input-number v-model:value="formState.age" />
-        </a-form-item>
-        <a-form-item label="性别" name="gender">
-          <a-select v-model:value="formState.gender">
-            <a-select-option value="男">男</a-select-option>
-            <a-select-option value="女">女</a-select-option>
-          </a-select>
-        </a-form-item>
-        <a-form-item label="喜好标签" name="tags">
-          <a-input v-model:value="formState.tags" />
         </a-form-item>
       </a-form>
     </a-modal>
@@ -88,11 +79,10 @@ const pagination = reactive({
 const columns = [
   { title: '用户ID', dataIndex: 'user_id', key: 'user_id' },
   { title: '用户名', dataIndex: 'username', key: 'username' },
+  { title: '真实名', dataIndex: 'truename', key: 'truename' },
   { title: '邮箱', dataIndex: 'email', key: 'email' },
   { title: '角色', dataIndex: 'role', key: 'role' },
   { title: '手机号', dataIndex: 'phone', key: 'phone' },
-  { title: '年龄', dataIndex: 'age', key: 'age' },
-  { title: '性别', dataIndex: 'gender', key: 'gender' },
   { title: '操作', key: 'action', slots: { customRender: 'action' } },
 ];
 
@@ -105,11 +95,11 @@ const formState = reactive({
   password: '',
   email: '',
   role: '',
-  avatarUrl: '',
+  avatar_url: '',
   phone: '',
   age: null,
   gender: '',
-  tags: '',
+  truename: ''
 });
 const currentAction = ref('add'); // 当前操作：add 或 edit
 
@@ -138,11 +128,12 @@ const showModal = (action, record) => {
   } else {
     Object.assign(formState, {
       user_id: null,
+      truename: '',
       username: '',
       password: '',
       email: '',
       role: '',
-      avatarUrl: '',
+      avatar_url: '',
       phone: '',
       age: null,
       gender: '',

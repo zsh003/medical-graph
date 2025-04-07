@@ -46,6 +46,7 @@ import KnowledgeGraph from "../views/KnowledgeGraph.vue";
 import { useRouter } from 'vue-router'
 import {useAuthStore} from "../stores/authStore.js";
 import InfoChange from "../views/InfoChange.vue";
+import PWDChangeView from "../views/PWDChangeView.vue";
 
 const router = useRouter()
 const authStore = useAuthStore()
@@ -54,6 +55,7 @@ const selectedKeys = ref<string[]>(['0'])
 const menuItems = [
   { key: '0', icon: LockOutlined , text: '知识图谱', component: KnowledgeGraph },
   { key: '1', icon: EditOutlined , text: '修改信息', component: InfoChange },
+  { key: '2', icon: LogoutOutlined , text: '修改密码', component: PWDChangeView },
 
 ]
 // 定义当前要显示的组件

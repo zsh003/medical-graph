@@ -5,6 +5,9 @@
       <a-form-item label="用户名" :rules="[{ required: true, message: '请输入用户名' }]">
         <a-input v-model:value="formData.username" placeholder="请输入用户名" />
       </a-form-item>
+      <a-form-item label="真实名">
+        <a-input v-model:value="formData.truename" placeholder="请输入真实名" />
+      </a-form-item>
       <a-form-item label="头像">
         <div>
           <!-- 显示当前头像 -->
@@ -32,18 +35,6 @@
       ]">
         <a-input v-model:value="formData.email" placeholder="请输入邮箱" />
       </a-form-item>
-      <a-form-item label="年龄" name="age" :rules="[
-        //{ required: true, message: '请输入年龄' },
-        { type: 'number', min: 0, max: 150, message: '年龄必须在0到150之间' }
-      ]">
-        <a-input-number v-model:value="formData.age" placeholder="请输入年龄" />
-      </a-form-item>
-      <a-form-item label="性别" :rules="[{ required: true, message: '请选择性别' }]">
-        <a-radio-group v-model:value="formData.gender">
-          <a-radio value="男">男</a-radio>
-          <a-radio value="女">女</a-radio>
-        </a-radio-group>
-      </a-form-item>
       <a-form-item :wrapper-col="{ span: 14, offset: 6 }">
         <a-button type="primary" html-type="submit">提交</a-button>
       </a-form-item>
@@ -62,6 +53,7 @@ const authStore = useAuthStore()
 const formData = ref({
   userid: authStore.user?.userid,
   username: authStore.user?.username,
+  truename: authStore.user?.truename,
   avatar: authStore.user?.avatar_url,
   phone: authStore.user?.phone,
   email: authStore.user?.email,
@@ -78,7 +70,8 @@ const handleSubmit = () => {
     phone: formData.value.phone,
     email: formData.value.email,
     age: formData.value.age,
-    gender: formData.value.gender
+    gender: formData.value.gender,
+    truename: formData.value.truename,
   };
   // 这里可以添加实际的提交逻辑，如发送请求到后端
   axios.post('http://localhost:5000/auth/infoChange', authStore.user).then(res => {
