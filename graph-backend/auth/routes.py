@@ -1,9 +1,19 @@
-from flask import Blueprint, render_template, request, redirect, url_for, jsonify
+import os
 
+from flask import Blueprint, render_template, request, redirect, url_for, jsonify
 from auth.models import User
 from auth.models import db
+import uuid
 
 auth = Blueprint('auth', __name__)
+# 配置文件上传
+AVATARS_FOLDER = os.path.join('static', 'avatars')  # 保存到 static/avatars 目录
+ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}  # 允许的文件类型
+MAX_FILE_SIZE = 2 * 1024 * 1024  # 最大文件大小（2MB）
+
+# 确保 avatars 目录存在
+if not os.path.exists(AVATARS_FOLDER):
+    os.makedirs(AVATARS_FOLDER)
 
 @auth.route('/login', methods=['POST'])
 def login():
@@ -78,3 +88,43 @@ def infoChange():
         'success': True,
         'message': 'User info changed successfully'
     }), 201
+
+
+# 检查文件类型是否允许
+def allowed_file(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+
+# 上传文件接口
+@auth.route('/upload', methods=['POST'])
+def upload_file():
+    if 'file' not in request.files:
+        return jsonify({'success': False, 'message': '未上传文件'}), 400
+
+    file = request.files['file']
+
+    # 检查文件是否存在
+    if file.filename == '':
+        return jsonify({'success': False, 'message': '未选择文件'}), 400
+
+    # 检查文件类型和大小
+    if not allowed_file(file.filename):
+        return jsonify({'success': False, 'message': '文件类型不支持'}), 400
+
+    file.seek(0, os.SEEK_END)  # 移动到文件末尾
+    file_size = file.tell()  # 获取文件大小
+    file.seek(0)  # 重置文件指针
+
+    if file_size > MAX_FILE_SIZE:
+        return jsonify({'success': False, 'message': '文件大小不能超过 2MB'}), 400
+
+    # 生成唯一文件名
+    file_ext = file.filename.rsplit('.', 1)[1].lower()
+    unique_filename = f'{uuid.uuid4().hex}.{file_ext}'
+    file_path = os.path.join(AVATARS_FOLDER, unique_filename)
+    file.save(file_path)
+
+    # userid = request.form.get('userId')
+    # 返回文件访问 URL
+    file_url = f'http://localhost:5000/static/avatars/{unique_filename}'
+    return jsonify({'success': True, 'url': file_url})

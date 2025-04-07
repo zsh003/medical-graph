@@ -95,7 +95,7 @@ const handleSubmitFailed = (errorInfo) => {
 
 
 //头像上传
-const uploadUrl = 'http://localhost:5000/upload'
+const uploadUrl = 'http://localhost:5000/auth/upload'
 // 头像上传前的校验
 function beforeAvatarUpload(file) {
   const isImage = file.type.startsWith('image/');
