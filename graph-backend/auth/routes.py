@@ -93,7 +93,10 @@ def infoChange():
 # 检查文件类型是否允许
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
-
+@auth.route('/users', methods=['GET'])
+def get_users():
+    users = User.query.all()
+    return jsonify([user.to_dict() for user in users])
 
 # 上传文件接口
 @auth.route('/upload', methods=['POST'])
@@ -128,3 +131,29 @@ def upload_file():
     # 返回文件访问 URL
     file_url = f'http://localhost:5000/static/avatars/{unique_filename}'
     return jsonify({'success': True, 'url': file_url})
+
+@auth.route('/adduser', methods=['POST'])
+def add_user():
+    data = request.get_json()
+    print(data)
+    if User.query.filter_by(username=data.get('username')).first():
+        return jsonify({'success': False,'message': 'Username already exists'}), 400
+    user = User()
+    user.username = data.get('username')
+    user.password = data.get('password')
+    user.email = data.get('email')
+    user.gender = data.get('gender')
+    user.age = data.get('age')
+    user.phone = data.get('phone')
+    user.avatarUrl = data.get('avatar_url')
+    user.tags = data.get('tags')
+    db.session.add(user)
+    db.session.commit()
+    return jsonify(user.to_dict()), 201
+
+@auth.route('/user/<int:userId>', methods=['DELETE'])
+def delete_user(userId):
+    user = User.query.get(userId)
+    db.session.delete(user)
+    db.session.commit()
+    return jsonify({'success': True, 'message': 'User deleted successfully'}), 200

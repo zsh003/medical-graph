@@ -71,16 +71,16 @@ const selectedKeys = ref(['user-management'])
 
 // 动态组件
 const currentTabComponent = computed(() => {
-  // switch (selectedKeys.value[0]) {
-  //   case 'user-management':
-  //     return defineAsyncComponent(() => import('./views/admin/UserMangeView.vue'))
-  //   case 'movie-management':
-  //     return defineAsyncComponent(() => import('@/views/admin/MovieManageView.vue'))
-  //   case 'recommendation-settings':
-  //     return defineAsyncComponent(() => import('@/views/admin/SettingsView.vue'))
-  //   default:
-  //     return null
-  // }
+  switch (selectedKeys.value[0]) {
+    case 'user-management':
+      return defineAsyncComponent(() => import('../views/admin/UserMangeView.vue'))
+    // case 'movie-management':
+    //   return defineAsyncComponent(() => import('@/views/admin/MovieManageView.vue'))
+    // case 'recommendation-settings':
+    //   return defineAsyncComponent(() => import('@/views/admin/SettingsView.vue'))
+    default:
+      return null
+  }
 })
 
 const handleLogout = ()=>{
