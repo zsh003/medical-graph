@@ -75,22 +75,58 @@ def add_node():
     group = data.get('group')
     node_type = data.get('type')
 
-    if not name or not group or not node_type:
+    print(data)
+    if not all([name, group, node_type]):
         return jsonify({"error": "Missing required fields"}), 400
 
+    # 使用参数化查询以防止注入攻击
     query = """
-    CREATE (n:{group} {name: $name, type: $type})
-    """.format(group=group)
+    CREATE (n:%s {name: $name, group: $group, type: $type})
+    """
 
     with driver.session() as session:
-        session.run(query, {"name": name, "type": node_type})
+        try:
+            session.run(query % node_type, {"name": name,"group": group, "type": node_type})
+        except Exception as e:
+            return jsonify({"error": str(e)}), 500
+
     return jsonify({"message": "Node added successfully"}), 201
+
+
+from flask import request, jsonify
+
+from flask import request, jsonify
+
+
+@graph.route('/<path:name>', methods=['DELETE'])
+def delete_node(name):
+    if not name:
+        return jsonify({"error": "Missing required field 'name'"}), 400
+
+    # Cypher查询，用于删除指定名称的节点
+    query = """
+    MATCH (n {name: $name})
+    DETACH DELETE n
+    """
+
+    with driver.session() as session:
+        try:
+            result = session.run(query, {"name": name})
+            summary = result.consume()
+            # 检查是否实际删除了节点
+            if summary.counters.nodes_deleted == 0:
+                return jsonify({"message": "No node found with the given name."}), 404
+        except Exception as e:
+            return jsonify({"error": str(e)}), 500
+
+    return jsonify({"message": "Node deleted successfully"}), 200
 
 
 # 添加关系的接口
 @graph.route('/add_relation', methods=['POST'])
 def add_relation():
     data = request.get_json()
+    print(data)
     start_node_name = data.get('start_node_name')
     end_node_name = data.get('end_node_name')
     relation_type = data.get('relation_type')

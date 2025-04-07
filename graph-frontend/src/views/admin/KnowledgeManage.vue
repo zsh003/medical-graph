@@ -84,6 +84,7 @@
 <script setup>
 import { reactive, onMounted } from 'vue';
 import axios from 'axios';
+import {message} from "ant-design-vue";
 
 const nodeForm = reactive({
   name: '',
@@ -115,19 +116,20 @@ const relationColumns = [
 
 async function handleAddNode() {
   try {
-    await axios.post('/graph/add_node', nodeForm);
+    await axios.post('http://localhost:5000/graph/add_node', nodeForm);
     refreshGraphData();
     Object.keys(nodeForm).forEach(key => {
       nodeForm[key] = '';
     });
+    message.success('节点添加成功');
   } catch (error) {
-    console.error('节点添加失败:', error);
+    message.error('节点添加失败:', error);
   }
 }
 
 async function handleAddRelation() {
   try {
-    await axios.post('/graph/add_relation', relationForm);
+    await axios.post('http://localhost:5000/graph/add_relation', relationForm);
     refreshGraphData();
     Object.keys(relationForm).forEach(key => {
       relationForm[key] = '';
@@ -138,7 +140,7 @@ async function handleAddRelation() {
 }
 
 async function refreshGraphData() {
-  const response = await axios.get('/graph/data');
+  const response = await axios.get('http://localhost:5000/graph/data');
   graphData.nodes = response.data.nodes;
   graphData.links = response.data.links;
 }
@@ -147,7 +149,8 @@ async function removeNode(node) {
   // 实现删除节点的逻辑
   console.log('Remove node:', node);
   // 示例：假设有一个删除节点的API
-  await axios.delete(`/graph/remove_node/${node.id}`);
+  await axios.delete(`http://localhost:5000/graph/${node.id}`);
+  message.success("删除成功")
   refreshGraphData();
 }
 
@@ -155,8 +158,10 @@ async function removeRelation(relation) {
   // 实现删除关系的逻辑
   console.log('Remove relation:', relation);
   // 示例：假设有一个删除关系的API
-  await axios.delete(`/graph/remove_relation/${relation.source}/${relation.target}`);
-  refreshGraphData();
+  axios.delete(`http://localhost:5000/graph/remove_relation/${relation.source}/${relation.target}`).then(res=>{
+    refreshGraphData();
+    message.success("删除成功")
+  })
 }
 
 onMounted(() => {
