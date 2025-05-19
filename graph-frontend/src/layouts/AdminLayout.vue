@@ -29,11 +29,11 @@
           </template>
           知识管理
         </a-menu-item>
-        <a-menu-item key="recommendation-settings" class="menu-item">
+        <a-menu-item key="knowledge-graph" class="menu-item">
           <template #icon>
             <setting-outlined />
           </template>
-          推荐系统设置
+          知识图谱
         </a-menu-item>
         <!-- 退出登录 -->
         <a-menu-item key="logout" class="menu-item logout-item" @click="handleLogout">
@@ -76,8 +76,8 @@ const currentTabComponent = computed(() => {
       return defineAsyncComponent(() => import('../views/admin/UserMangeView.vue'))
     case 'knowledge-management':
       return defineAsyncComponent(() => import('../views/admin/KnowledgeManage.vue'))
-    // case 'recommendation-settings':
-    //   return defineAsyncComponent(() => import('@/views/admin/SettingsView.vue'))
+     case 'knowledge-graph':
+       return defineAsyncComponent(() => import('../views/KnowledgeGraph.vue'))
     default:
       return null
   }

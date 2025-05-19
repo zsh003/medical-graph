@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="GraphDatabaseSupport.DataSourcesState">
+    <option name="containerV1">
+      <DataSourceContainerV1>
+        <option name="dataSources">
+          <list>
+            <DataSourceV1>
+              <option name="uuid" value="416d0f5c-9c3e-4b22-af16-ed37a9c5e4c2" />
+              <option name="name" value="graph" />
+              <option name="dataSourceType" value="NEO4J_BOLT" />
+              <option name="configuration">
+                <map>
+                  <entry key="authType" value="User &amp; Password" />
+                  <entry key="database" value="" />
+                  <entry key="host" value="localhost" />
+                  <entry key="password" value="123456" />
+                  <entry key="port" value="7687" />
+                  <entry key="protocol" value="bolt" />
+                  <entry key="user" value="root" />
+                </map>
+              </option>
+            </DataSourceV1>
+          </list>
+        </option>
+      </DataSourceContainerV1>
+    </option>
+  </component>
+</project>

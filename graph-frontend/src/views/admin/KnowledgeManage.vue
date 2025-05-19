@@ -130,12 +130,13 @@ async function handleAddNode() {
 async function handleAddRelation() {
   try {
     await axios.post('http://localhost:5000/graph/add_relation', relationForm);
-    refreshGraphData();
+    await refreshGraphData();
     Object.keys(relationForm).forEach(key => {
       relationForm[key] = '';
     });
+    message.success('关系添加成功')
   } catch (error) {
-    console.error('关系添加失败:', error);
+    message.error('关系添加失败:', error);
   }
 }
 

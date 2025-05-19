@@ -92,9 +92,6 @@ def add_node():
 
     return jsonify({"message": "Node added successfully"}), 201
 
-
-from flask import request, jsonify
-
 from flask import request, jsonify
 
 
@@ -127,9 +124,9 @@ def delete_node(name):
 def add_relation():
     data = request.get_json()
     print(data)
-    start_node_name = data.get('start_node_name')
-    end_node_name = data.get('end_node_name')
-    relation_type = data.get('relation_type')
+    start_node_name = data.get('startNodeName')
+    end_node_name = data.get('endNodeName')
+    relation_type = data.get('relationType')
 
     if not start_node_name or not end_node_name or not relation_type:
         return jsonify({"error": "Missing required fields"}), 400
