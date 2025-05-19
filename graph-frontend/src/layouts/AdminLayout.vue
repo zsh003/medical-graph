@@ -35,6 +35,12 @@
           </template>
           知识图谱
         </a-menu-item>
+        <a-menu-item key="ner-view" class="menu-item">
+          <template #icon>
+            <setting-outlined />
+          </template>
+          实体识别
+        </a-menu-item>
         <!-- 退出登录 -->
         <a-menu-item key="logout" class="menu-item logout-item" @click="handleLogout">
           <template #icon>
@@ -78,6 +84,8 @@ const currentTabComponent = computed(() => {
       return defineAsyncComponent(() => import('../views/admin/KnowledgeManage.vue'))
      case 'knowledge-graph':
        return defineAsyncComponent(() => import('../views/KnowledgeGraph.vue'))
+    case 'ner-view':
+      return defineAsyncComponent(() => import('../views/admin/NERView.vue'))
     default:
       return null
   }
