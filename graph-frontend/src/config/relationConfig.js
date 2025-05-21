@@ -6,7 +6,7 @@ export const relationTypeMap = {
   'has_food': '有食物',
   'has_check': '有检查',
   'produced_by': '生产商',
-  'drugs_of': '治疗',
+  'drugs_of': '对应通用名',
   'recommand_drug': '推荐用药',
   'recommand_eat': '推荐食用',
   'need_check': '需要检查',

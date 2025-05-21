@@ -5,12 +5,10 @@
       @search="handleSearch"
     />
 
-    <InfoCard
-      v-if="showInfoCard"
+    <NodeDetail
+      v-if="selectedNode"
       :node="selectedNode"
       :relations="nodeRelations"
-      :style="infoCardStyle"
-      @close="showInfoCard = false"
     />
 
     <svg ref="svgContainer"></svg>
@@ -20,17 +18,17 @@
 <script>
 import { ref, onMounted, onBeforeUnmount } from 'vue'
 import SearchBox from '../components/SearchBox.vue'
-import InfoCard from '../components/InfoCard.vue'
+import NodeDetail from '../components/NodeDetail.vue'
 import { GraphRenderer } from '../services/graphRenderService.js'
 import { fetchGraphData } from '../services/graphService.js'
 import { getNodeRelations } from '../utils/graphUtils.js'
-import { getRelationTypeName } from '../config/relationConfig'
+import { getEntityTypeColor } from '../config/entityConfig'
 
 export default {
   name: 'KnowledgeGraph',
   components: {
     SearchBox,
-    InfoCard
+    NodeDetail
   },
   setup() {
     const svgContainer = ref(null)
@@ -41,13 +39,8 @@ export default {
     let svg = null
     let isSpacePressed = false
     let zoom = null
-    const showInfoCard = ref(false)
     const selectedNode = ref(null)
     const nodeRelations = ref({ incoming: [], outgoing: [] })
-    const infoCardStyle = ref({
-      top: '20px',
-      left: '20px'
-    })
     const isCtrlPressed = ref(false)
 
     // 处理键盘事件
@@ -76,12 +69,7 @@ export default {
 
     // 获取节点颜色
     const getNodeColor = (group) => {
-      const colors = {
-        1: '#ff7875', // 药品 - 红色
-        2: '#73d13d', // 症状 - 绿色
-        3: '#40a9ff'  // 疾病 - 蓝色
-      }
-      return colors[group]
+      return getEntityTypeColor(group)
     }
 
     // 获取节点半径
@@ -148,7 +136,6 @@ export default {
           }
           return 0.6
         })
-        .text(d => getRelationTypeName(d.type))
 
       // 高亮相关节点
       const relatedNodeIds = new Set()
@@ -278,16 +265,35 @@ export default {
       event.subject.fy = null
     }
 
-    // 修改处理节点点击的函数
-    const handleNodeClick = (event, d) => {
-      if (event.ctrlKey || event.metaKey) { // metaKey 用于 Mac
-        event.preventDefault()
-        selectedNode.value = d
-        showInfoCard.value = true
+    // 处理节点鼠标悬停
+    const handleNodeMouseover = (event, d) => {
+      selectedNode.value = d
+      nodeRelations.value = getNodeRelations(d, currentSimulation.force('link').links())
+      highlightRelatedNodes(d)
+    }
 
-        // 获取节点关系
-        nodeRelations.value = getNodeRelations(d, currentSimulation.force('link').links())
-      }
+    // 处理节点鼠标移出
+    const handleNodeMouseout = () => {
+      selectedNode.value = null
+      nodeRelations.value = { incoming: [], outgoing: [] }
+      
+      // 重置所有节点样式
+      currentNodes.selectAll('circle')
+        .attr('fill', d => getNodeColor(d.group))
+        .attr('r', d => getNodeRadius(d.id))
+        .attr('opacity', 1)
+        .attr('stroke', 'none')
+        .attr('stroke-width', 0)
+
+      currentLinks.selectAll('line')
+        .attr('stroke', '#999')
+        .attr('stroke-width', 1)
+        .attr('opacity', 0.6)
+
+      currentLinks.selectAll('text')
+        .attr('fill', '#666')
+        .style('font-weight', 'normal')
+        .attr('opacity', 0.6)
     }
 
     // 更新节点的鼠标悬停样式
@@ -317,29 +323,9 @@ export default {
 
       // 渲染图形
       const { nodes, links } = renderer.renderGraph(data, {
-        onNodeClick: handleNodeClick,
-        onNodeMouseover: (event, d) => {
-          if (isCtrlPressed.value) {
-            d3.select(event.currentTarget)
-              .select('circle')
-              .classed('hover', true)
-          }
-        },
-        onNodeMouseout: (event) => {
-          d3.select(event.currentTarget)
-            .select('circle')
-            .classed('hover', false)
-        }
+        onNodeMouseover: handleNodeMouseover,
+        onNodeMouseout: handleNodeMouseout
       })
-
-      // 修改关系标签显示为中文
-      links.selectAll('text')
-        .text(d => getRelationTypeName(d.type))
-        .attr('dy', -3)
-        .attr('text-anchor', 'middle')
-        .style('font-size', '12px')
-        .style('fill', '#666')
-        .style('pointer-events', 'none')
 
       currentNodes = nodes
       currentLinks = links
@@ -366,10 +352,8 @@ export default {
       svgContainer,
       searchText,
       handleSearch,
-      showInfoCard,
       selectedNode,
       nodeRelations,
-      infoCardStyle,
       isCtrlPressed
     }
   }
