@@ -67,7 +67,7 @@ import { ref } from 'vue';
 import { UserOutlined, LockOutlined } from '@ant-design/icons-vue';
 import { message } from 'ant-design-vue';
 import { useRouter } from 'vue-router'
-import {useAuthStore} from "../stores/authStore.js";
+import {useAuthStore} from "../../stores/authStore.js";
 
 const authStore = useAuthStore();
 const user = authStore?.user

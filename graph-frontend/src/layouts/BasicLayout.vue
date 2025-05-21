@@ -45,8 +45,8 @@ import {
 import KnowledgeGraph from "../views/KnowledgeGraph.vue";
 import { useRouter } from 'vue-router'
 import {useAuthStore} from "../stores/authStore.js";
-import InfoChange from "../views/InfoChange.vue";
-import PWDChangeView from "../views/PWDChangeView.vue";
+import InfoChange from "../views/user/InfoChange.vue";
+import PWDChangeView from "../views/user/PWDChangeView.vue";
 
 const router = useRouter()
 const authStore = useAuthStore()

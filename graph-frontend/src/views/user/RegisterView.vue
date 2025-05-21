@@ -57,7 +57,7 @@
 <script lang="ts">
 import { ref, reactive } from 'vue';
 import { message } from 'ant-design-vue';
-import {useAuthStore} from "../stores/authStore.js";
+import {useAuthStore} from "../../stores/authStore.js";
 
 import { useRouter } from 'vue-router'
 

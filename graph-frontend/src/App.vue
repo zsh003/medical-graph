@@ -35,11 +35,28 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
 
 const route = useRoute()
-const selectedKeys = ref([route.name])
+const selectedKeys = ref(['home'])
+
+// 监听路由变化，更新导航栏选中状态
+watch(
+  () => route.path,
+  (newPath) => {
+    // 根据路径设置选中的菜单项
+    const pathMap = {
+      '/': 'home',
+      '/entity': 'entity',
+      '/relation': 'relation',
+      '/knowledge': 'knowledge',
+      '/graph': 'graph'
+    }
+    selectedKeys.value = [pathMap[newPath] || 'home']
+  },
+  { immediate: true }
+)
 </script>
 
 <style scoped>
@@ -50,22 +67,32 @@ const selectedKeys = ref([route.name])
 .header {
   display: flex;
   align-items: center;
+  padding: 0 24px;
 }
 
 .logo {
   color: white;
   font-size: 20px;
-  margin-right: 30px;
+  font-weight: bold;
+  margin-right: 48px;
 }
 
 .content {
-  padding: 24px 50px;
-  background: #fff;
-  margin: 24px;
-  min-height: 280px;
+  background: #f0f2f5;
+  min-height: calc(100vh - 64px - 70px);
 }
 
 .footer {
   text-align: center;
+  background: #f0f2f5;
+  padding: 24px 50px;
+}
+
+:deep(.ant-menu-item a) {
+  color: rgba(255, 255, 255, 0.65);
+}
+
+:deep(.ant-menu-item-selected a) {
+  color: white;
 }
 </style>

@@ -22,7 +22,7 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import { message } from 'ant-design-vue'
-import { useAuthStore } from '../stores/authStore.js'
+import { useAuthStore } from '../../stores/authStore.js'
 import axios from 'axios'
 
 const authStore = useAuthStore()

@@ -46,7 +46,7 @@
 import { ref } from 'vue';
 import { message } from 'ant-design-vue';
 import axios from 'axios'
-import {useAuthStore} from "../stores/authStore.js";
+import {useAuthStore} from "../../stores/authStore.js";
 
 const authStore = useAuthStore()
 

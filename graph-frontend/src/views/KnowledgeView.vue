@@ -147,15 +147,11 @@
           :label-col="{ span: 4 }"
           :wrapper-col="{ span: 20 }"
         >
-          <a-form-item label="源实体">
-            <a-select
-              v-model:value="selectedRelation.source"
-              :options="entityOptions"
-              :loading="entityLoading"
-            />
-          </a-form-item>
           <a-form-item label="关系类型">
-            <a-select v-model:value="selectedRelation.type">
+            <a-select 
+              v-model:value="selectedRelation.type"
+              @change="handleRelationTypeChange"
+            >
               <a-select-option value="belongs_to">属于</a-select-option>
               <a-select-option value="has_symptom">有症状</a-select-option>
               <a-select-option value="has_drug">有药品</a-select-option>
@@ -164,11 +160,20 @@
               <a-select-option value="produced_by">生产商</a-select-option>
             </a-select>
           </a-form-item>
+          <a-form-item label="源实体">
+            <a-select
+              v-model:value="selectedRelation.source"
+              :options="sourceEntityOptions"
+              :loading="entityLoading"
+              placeholder="请先选择关系类型"
+            />
+          </a-form-item>
           <a-form-item label="目标实体">
             <a-select
               v-model:value="selectedRelation.target"
-              :options="entityOptions"
+              :options="targetEntityOptions"
               :loading="entityLoading"
+              placeholder="请先选择关系类型"
             />
           </a-form-item>
           <a-form-item label="属性">
@@ -232,6 +237,77 @@ const entityOptions = computed(() => {
     value: entity.id
   }))
 })
+
+// 根据关系类型获取源实体选项
+const sourceEntityOptions = computed(() => {
+  if (!selectedRelation.value?.type) return []
+  
+  const typeMap = {
+    'belongs_to': ['Disease'],
+    'has_symptom': ['Disease'],
+    'has_drug': ['Disease'],
+    'has_food': ['Disease'],
+    'has_check': ['Disease'],
+    'produced_by': ['Drug']
+  }
+  
+  const allowedTypes = typeMap[selectedRelation.value.type] || []
+  return entities.value
+    .filter(entity => allowedTypes.includes(entity.type))
+    .map(entity => ({
+      label: `${entity.name} (${entity.type})`,
+      value: entity.id
+    }))
+})
+
+// 根据关系类型获取目标实体选项
+const targetEntityOptions = computed(() => {
+  if (!selectedRelation.value?.type) return []
+  
+  const typeMap = {
+    'belongs_to': ['Department'],
+    'has_symptom': ['Symptom'],
+    'has_drug': ['Drug'],
+    'has_food': ['Food'],
+    'has_check': ['Check'],
+    'produced_by': ['Producer']
+  }
+  
+  const allowedTypes = typeMap[selectedRelation.value.type] || []
+  return entities.value
+    .filter(entity => allowedTypes.includes(entity.type))
+    .map(entity => ({
+      label: `${entity.name} (${entity.type})`,
+      value: entity.id
+    }))
+})
+
+// 获取所有实体（不分页）
+const fetchAllEntities = async () => {
+  try {
+    const response = await axios.get('/api/entity/list', {
+      params: {
+        page: 1,
+        pageSize: 10000, // 设置一个足够大的数来获取所有实体
+        search: ''
+      }
+    })
+    if (response.data.success) {
+      entities.value = response.data.entities
+    }
+  } catch (error) {
+    message.error('获取实体列表失败：' + error.message)
+  }
+}
+
+// 监听关系类型变化
+const handleRelationTypeChange = (type) => {
+  // 清空源实体和目标实体的选择
+  if (selectedRelation.value) {
+    selectedRelation.value.source = undefined
+    selectedRelation.value.target = undefined
+  }
+}
 
 // 实体相关方法
 const searchEntities = async () => {
@@ -379,6 +455,7 @@ const getRelationTypeColor = (type) => {
 onMounted(() => {
   searchEntities()
   searchRelations()
+  fetchAllEntities() // 获取所有实体用于关系选择
 })
 </script>
 
