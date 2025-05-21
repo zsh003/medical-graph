@@ -6,19 +6,36 @@ neo4j_service = Neo4jService()
 
 @bp.route('/api/statistics', methods=['GET'])
 def get_statistics():
+    """获取系统统计数据"""
     try:
         # 获取实体总数
-        entity_count = neo4j_service.get_entity_count()
-        
+        entity_query = """
+        MATCH (n)
+        RETURN count(n) as count
+        """
+        entity_count = neo4j_service.graph.run(entity_query).data()[0]['count']
+
         # 获取关系总数
-        relation_count = neo4j_service.get_relation_count()
-        
+        relation_query = """
+        MATCH ()-[r]->()
+        RETURN count(r) as count
+        """
+        relation_count = neo4j_service.graph.run(relation_query).data()[0]['count']
+
         # 获取疾病数量
-        disease_count = neo4j_service.get_entity_count_by_type('Disease')
-        
+        disease_query = """
+        MATCH (n:Disease)
+        RETURN count(n) as count
+        """
+        disease_count = neo4j_service.graph.run(disease_query).data()[0]['count']
+
         # 获取药品数量
-        drug_count = neo4j_service.get_entity_count_by_type('Drug')
-        
+        drug_query = """
+        MATCH (n:Drug)
+        RETURN count(n) as count
+        """
+        drug_count = neo4j_service.graph.run(drug_query).data()[0]['count']
+
         return jsonify({
             'success': True,
             'statistics': {

@@ -84,9 +84,9 @@ const updateGraph = (data) => {
     .data(data.links)
     .enter()
     .append('line')
-    .attr('stroke', '#999')
-    .attr('stroke-opacity', 0.6)
-    .attr('stroke-width', 1)
+    .attr('stroke', '#666')
+    .attr('stroke-opacity', 0.8)
+    .attr('stroke-width', 1.5)
 
   // 创建节点组
   nodes = svg.select('g')
@@ -105,15 +105,18 @@ const updateGraph = (data) => {
     .attr('fill', d => getNodeColor(d.type))
     .attr('stroke', '#fff')
     .attr('stroke-width', 2)
+    .style('filter', 'drop-shadow(0 2px 4px rgba(0,0,0,0.2))')
 
   // 添加节点文本
   nodes.append('text')
     .text(d => d.name)
     .attr('text-anchor', 'middle')
     .attr('dy', 4)
-    .attr('fill', '#fff')
+    .attr('fill', d => getTextColor(d.type))
     .style('font-size', '12px')
+    .style('font-weight', 'bold')
     .style('pointer-events', 'none')
+    .style('text-shadow', '0 1px 2px rgba(0,0,0,0.3)')
 
   // 添加关系标签
   svg.select('g')
@@ -124,9 +127,11 @@ const updateGraph = (data) => {
     .attr('class', 'relation')
     .text(d => d.type)
     .attr('text-anchor', 'middle')
-    .attr('fill', '#666')
+    .attr('fill', '#333')
     .style('font-size', '12px')
+    .style('font-weight', '500')
     .style('pointer-events', 'none')
+    .style('text-shadow', '0 1px 1px rgba(255,255,255,0.8)')
 
   // 更新力导向图
   simulation.nodes(data.nodes)
@@ -203,6 +208,20 @@ const getNodeColor = (type) => {
   return colorMap[type] || '#d9d9d9'
 }
 
+// 获取节点文字颜色
+const getTextColor = (type) => {
+  const colorMap = {
+    'Disease': '#fff',
+    'Symptom': '#fff',
+    'Drug': '#fff',
+    'Food': '#fff',
+    'Check': '#fff',
+    'Department': '#fff',
+    'Producer': '#fff'
+  }
+  return colorMap[type] || '#fff'
+}
+
 // 生命周期钩子
 onMounted(() => {
   initGraph()
@@ -240,7 +259,7 @@ onBeforeUnmount(() => {
 .graph-container {
   width: 100%;
   height: calc(100vh - 200px);
-  background-color: #f5f5f5;
+  background-color: #c6e7d4;
   border-radius: 4px;
   overflow: hidden;
 }
@@ -253,6 +272,6 @@ onBeforeUnmount(() => {
 :deep(circle:hover) {
   stroke: #1890ff;
   stroke-width: 3px;
-  filter: drop-shadow(0 0 4px rgba(24, 144, 255, 0.5));
+  filter: drop-shadow(0 0 8px rgba(24, 144, 255, 0.6));
 }
 </style> 
