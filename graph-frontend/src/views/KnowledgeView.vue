@@ -247,8 +247,9 @@ const searchEntities = async () => {
   }
 }
 
-const handleEntityPageChange = (page) => {
+const handleEntityPageChange = (page, pageSize) => {
   entityPagination.value.current = page
+  entityPagination.value.pageSize = pageSize
   searchEntities()
 }
 
@@ -315,8 +316,9 @@ const searchRelations = async () => {
   }
 }
 
-const handleRelationPageChange = (page) => {
+const handleRelationPageChange = (page, pageSize) => {
   relationPagination.value.current = page
+  relationPagination.value.pageSize = pageSize
   searchRelations()
 }
 

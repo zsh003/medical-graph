@@ -180,17 +180,22 @@ def get_relation_list():
                 source = record['source']
                 target = record['target']
                 rel = record['r']
+                
+                # 获取源节点和目标节点的标签
+                source_labels = list(source.labels)
+                target_labels = list(target.labels)
+                
                 relation = {
                     'id': f"{source.identity}-{target.identity}",
                     'source': {
                         'id': source.identity,
                         'name': source.get('name', ''),
-                        'type': list(source.labels)[0] if source.labels else 'Unknown'
+                        'type': source_labels[0] if source_labels else 'Unknown'
                     },
                     'target': {
                         'id': target.identity,
                         'name': target.get('name', ''),
-                        'type': list(target.labels)[0] if target.labels else 'Unknown'
+                        'type': target_labels[0] if target_labels else 'Unknown'
                     },
                     'type': type(rel).__name__,
                     'properties': dict(rel)
@@ -207,6 +212,181 @@ def get_relation_list():
         })
     except Exception as e:
         print(f"获取关系列表时出错: {str(e)}")
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
+@bp.route('/api/entity/<int:entity_id>', methods=['PUT'])
+def update_entity(entity_id):
+    """更新实体信息"""
+    try:
+        data = request.get_json()
+        if not data:
+            return jsonify({
+                'success': False,
+                'error': '无效的请求数据'
+            }), 400
+
+        # 处理属性值
+        properties = {}
+        for key, value in data.items():
+            if isinstance(value, (str, int, float, bool)):
+                properties[key] = value
+            elif isinstance(value, list):
+                # 确保列表中的元素都是基本类型
+                properties[key] = [str(item) for item in value]
+            elif value is None:
+                properties[key] = None
+            else:
+                # 将其他类型转换为字符串
+                properties[key] = str(value)
+
+        # 更新实体   ==============================================
+        query = """
+        MATCH (n)
+        WHERE id(n) = $entity_id
+        SET n += $properties
+        RETURN n
+        """
+        result = neo4j_service.graph.run(query, entity_id=entity_id, properties=properties).data()
+        
+        if not result:
+            return jsonify({
+                'success': False,
+                'error': '实体不存在'
+            }), 404
+
+        return jsonify({
+            'success': True,
+            'message': '更新成功',
+            'entity': dict(result[0]['n'])
+        })
+    except Exception as e:
+        print(f"更新实体时出错: {str(e)}")
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
+@bp.route('/api/entity/<int:entity_id>', methods=['DELETE'])
+def delete_entity(entity_id):
+    """删除实体"""
+    try:
+        # 删除实体及其关系
+        query = """
+        MATCH (n)
+        WHERE id(n) = $entity_id
+        DETACH DELETE n
+        """
+        neo4j_service.graph.run(query, entity_id=entity_id)
+        
+        return jsonify({
+            'success': True,
+            'message': '删除成功'
+        })
+    except Exception as e:
+        print(f"删除实体时出错: {str(e)}")
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
+@bp.route('/api/relation/<path:relation_id>', methods=['PUT'])
+def update_relation(relation_id):
+    """更新关系信息"""
+    try:
+        data = request.get_json()
+        if not data:
+            return jsonify({
+                'success': False,
+                'error': '无效的请求数据'
+            }), 400
+
+        # 处理属性值
+        properties = {}
+        for key, value in data.items():
+            if isinstance(value, (str, int, float, bool)):
+                properties[key] = value
+            elif isinstance(value, list):
+                # 确保列表中的元素都是基本类型
+                properties[key] = [str(item) for item in value]
+            elif value is None:
+                properties[key] = None
+            else:
+                # 将其他类型转换为字符串
+                properties[key] = str(value)
+
+        # 解析关系ID
+        source_id, target_id = map(int, relation_id.split('-'))
+        
+        # 更新关系
+        query = """
+        MATCH (source)-[r]->(target)
+        WHERE id(source) = $source_id AND id(target) = $target_id
+        SET r += $properties
+        RETURN r, source, target
+        """
+        result = neo4j_service.graph.run(query, source_id=source_id, target_id=target_id, properties=properties).data()
+        
+        if not result:
+            return jsonify({
+                'success': False,
+                'error': '关系不存在'
+            }), 404
+
+        # 格式化返回结果
+        rel = result[0]['r']
+        source = result[0]['source']
+        target = result[0]['target']
+        
+        return jsonify({
+            'success': True,
+            'message': '更新成功',
+            'relation': {
+                'id': f"{source.identity}-{target.identity}",
+                'source': {
+                    'id': source.identity,
+                    'name': source.get('name', ''),
+                    'type': list(source.labels)[0] if source.labels else 'Unknown'
+                },
+                'target': {
+                    'id': target.identity,
+                    'name': target.get('name', ''),
+                    'type': list(target.labels)[0] if target.labels else 'Unknown'
+                },
+                'type': type(rel).__name__,
+                'properties': dict(rel)
+            }
+        })
+    except Exception as e:
+        print(f"更新关系时出错: {str(e)}")
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
+@bp.route('/api/relation/<path:relation_id>', methods=['DELETE'])
+def delete_relation(relation_id):
+    """删除关系"""
+    try:
+        # 解析关系ID
+        source_id, target_id = map(int, relation_id.split('-'))
+        
+        # 删除关系
+        query = """
+        MATCH (source)-[r]->(target)
+        WHERE id(source) = $source_id AND id(target) = $target_id
+        DELETE r
+        """
+        neo4j_service.graph.run(query, source_id=source_id, target_id=target_id)
+        
+        return jsonify({
+            'success': True,
+            'message': '删除成功'
+        })
+    except Exception as e:
+        print(f"删除关系时出错: {str(e)}")
         return jsonify({
             'success': False,
             'error': str(e)
