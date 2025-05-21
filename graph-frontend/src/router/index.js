@@ -2,7 +2,6 @@ import { createRouter, createWebHistory } from 'vue-router'
 import { beforeEachGuard, afterEachGuard, onErrorHandler } from './guards'
 import KnowledgeGraph from "../views/KnowledgeGraph.vue";
 import LogView from "../views/LogView.vue";
-import Test from "../views/test.vue";
 import RegisterView from "../views/RegisterView.vue";
 import BasicLayout from "../layouts/BasicLayout.vue";
 import {useAuthStore} from "../stores/authStore.js";
@@ -45,11 +44,6 @@ const router = createRouter({
                 requiresAuth: true,
                 requiresAdmin: true,
             }
-        },
-        {
-            path: '/test',
-            name: 'test',
-            component: Test
         },
         {
             path: '/entity',
