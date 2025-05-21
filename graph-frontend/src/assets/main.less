@@ -1,0 +1,172 @@
+// 全局样式变量
+@primary-color: #1890ff;
+@success-color: #52c41a;
+@warning-color: #faad14;
+@error-color: #f5222d;
+@font-size-base: 14px;
+@heading-color: rgba(0, 0, 0, 0.85);
+@text-color: rgba(0, 0, 0, 0.65);
+@text-color-secondary: rgba(0, 0, 0, 0.45);
+@disabled-color: rgba(0, 0, 0, 0.25);
+@border-radius-base: 4px;
+@border-color-base: #d9d9d9;
+@box-shadow-base: 0 2px 8px rgba(0, 0, 0, 0.15);
+
+// 全局样式
+html, body {
+  margin: 0;
+  padding: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial,
+    'Noto Sans', sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol',
+    'Noto Color Emoji';
+  font-size: @font-size-base;
+  line-height: 1.5;
+  color: @text-color;
+  background-color: #f0f2f5;
+}
+
+// 布局样式
+.app-container {
+  min-height: 100vh;
+}
+
+.app-header {
+  background: #fff;
+  padding: 0 24px;
+  box-shadow: 0 1px 4px rgba(0, 21, 41, 0.08);
+  position: fixed;
+  width: 100%;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  .logo {
+    height: 32px;
+    margin: 16px 0;
+    color: @heading-color;
+    font-size: 18px;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+
+    img {
+      height: 32px;
+      margin-right: 8px;
+    }
+  }
+
+  .header-menu {
+    flex: 1;
+    margin-left: 48px;
+  }
+}
+
+.app-content {
+  padding: 24px;
+  margin-top: 64px;
+  min-height: calc(100vh - 64px);
+}
+
+// 卡片样式
+.ant-card {
+  border-radius: @border-radius-base;
+  box-shadow: @box-shadow-base;
+
+  .ant-card-head {
+    border-bottom: 1px solid @border-color-base;
+  }
+}
+
+// 表单样式
+.ant-form {
+  .ant-form-item-label {
+    font-weight: 500;
+  }
+}
+
+// 按钮样式
+.ant-btn {
+  border-radius: @border-radius-base;
+  
+  &-primary {
+    background: @primary-color;
+    border-color: @primary-color;
+    
+    &:hover {
+      background: lighten(@primary-color, 10%);
+      border-color: lighten(@primary-color, 10%);
+    }
+  }
+}
+
+// 标签样式
+.ant-tag {
+  border-radius: @border-radius-base;
+  padding: 0 8px;
+  margin-right: 8px;
+}
+
+// 列表样式
+.ant-list {
+  .ant-list-item {
+    padding: 12px 0;
+  }
+}
+
+// 统计数字样式
+.ant-statistic {
+  .ant-statistic-title {
+    color: @text-color-secondary;
+  }
+  
+  .ant-statistic-content {
+    color: @heading-color;
+  }
+}
+
+// 响应式布局
+@media (max-width: 768px) {
+  .app-header {
+    padding: 0 16px;
+    
+    .header-menu {
+      margin-left: 24px;
+    }
+  }
+  
+  .app-content {
+    padding: 16px;
+  }
+}
+
+// 动画效果
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.3s ease;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+}
+
+// 滚动条样式
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 3px;
+  
+  &:hover {
+    background: #555;
+  }
+} 

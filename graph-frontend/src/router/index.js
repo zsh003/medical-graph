@@ -1,4 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router'
+import { beforeEachGuard, afterEachGuard, onErrorHandler } from './guards'
 import KnowledgeGraph from "../views/KnowledgeGraph.vue";
 import LogView from "../views/LogView.vue";
 import Test from "../views/test.vue";
@@ -14,7 +15,11 @@ const router = createRouter({
     routes: [{
         path: '/',
         name: 'home',
-        component: () => import('../views/HomeView.vue')
+        component: () => import('../views/HomeView.vue'),
+        meta: {
+            title: '首页',
+            requiresAuth: false
+        }
     },
         {
             path: '/login',
@@ -48,17 +53,38 @@ const router = createRouter({
         {
             path: '/entity',
             name: 'entity',
-            component: () => import('../views/EntityView.vue')
+            component: () => import('../views/EntityView.vue'),
+            meta: {
+                title: '实体识别',
+                requiresAuth: false
+            }
         },
         {
             path: '/relation',
             name: 'relation',
-            component: () => import('../views/RelationView.vue')
+            component: () => import('../views/RelationView.vue'),
+            meta: {
+                title: '关系抽取',
+                requiresAuth: false
+            }
         },
         {
             path: '/knowledge',
             name: 'knowledge',
-            component: () => import('../views/KnowledgeView.vue')
+            component: () => import('../views/KnowledgeView.vue'),
+            meta: {
+                title: '知识更新',
+                requiresAuth: false
+            }
+        },
+        {
+            path: '/:pathMatch(.*)*',
+            name: 'not-found',
+            component: () => import('../views/NotFoundView.vue'),
+            meta: {
+                title: '页面未找到',
+                requiresAuth: false
+            }
         }
     ]
 })
@@ -77,4 +103,10 @@ router.beforeEach((to, from, next) => {
         next()
     }
 })
+
+// 注册路由守卫
+router.beforeEach(beforeEachGuard)
+router.afterEach(afterEachGuard)
+router.onError(onErrorHandler)
+
 export default router
