@@ -2,18 +2,13 @@ from flask import Flask
 from flask_cors import CORS
 
 from auth.models import db
-from config import Config
+from app.config import Config
 from auth.routes import auth
 from graph.routes import graph
 
 app = Flask(__name__)
 CORS(app)
 app.config.from_object(Config)
-
-# 初始化数据库
-db.init_app(app)
-with app.app_context():
-    db.create_all()
 
 # 导入蓝图
 
@@ -27,4 +22,4 @@ def hello_world():  # put application's code here
 
 
 if __name__ == '__main__':
-    app.run()
+    app.run(debug=True)
