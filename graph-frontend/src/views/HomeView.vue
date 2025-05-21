@@ -103,41 +103,27 @@
         </a-card>
       </a-col>
 
-      <!-- 最近更新卡片 -->
+      <!-- 数据可视化卡片 -->
       <a-col :span="24">
-        <a-card title="最近更新" :bordered="false">
-          <a-list
-            :data-source="recentUpdates"
-            :loading="loading"
-            :pagination="{ pageSize: 5 }"
-          >
-            <template #renderItem="{ item }">
-              <a-list-item>
-                <a-list-item-meta>
-                  <template #title>
-                    {{ item.title }}
-                  </template>
-                  <template #description>
-                    {{ item.description }}
-                  </template>
-                  <template #avatar>
-                    <a-avatar :style="{ backgroundColor: item.color }">
-                      {{ item.icon }}
-                    </a-avatar>
-                  </template>
-                </a-list-item-meta>
-                <div>{{ item.time }}</div>
-              </a-list-item>
-            </template>
-          </a-list>
-        </a-card>
+        <a-row :gutter="16">
+          <a-col :span="12">
+            <a-card title="实体类型分布" :bordered="false">
+              <div ref="entityTypeChart" class="chart-container"></div>
+            </a-card>
+          </a-col>
+          <a-col :span="12">
+            <a-card title="关系类型分布" :bordered="false">
+              <div ref="relationTypeChart" class="chart-container"></div>
+            </a-card>
+          </a-col>
+        </a-row>
       </a-col>
     </a-row>
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, onUnmounted } from 'vue'
 import {
   DatabaseOutlined,
   LinkOutlined,
@@ -146,16 +132,20 @@ import {
   SearchOutlined
 } from '@ant-design/icons-vue'
 import axios from 'axios'
+import * as echarts from 'echarts'
 
 const loading = ref(false)
 const statistics = ref({
   entityCount: 0,
   relationCount: 0,
-  diseaseCount: 0,
-  drugCount: 0
+  entityTypeCounts: [],
+  relationTypeCounts: []
 })
 
-const recentUpdates = ref([])
+const entityTypeChart = ref(null)
+const relationTypeChart = ref(null)
+let entityChart = null
+let relationChart = null
 
 const fetchStatistics = async () => {
   loading.value = true
@@ -163,6 +153,7 @@ const fetchStatistics = async () => {
     const response = await axios.get('/api/statistics')
     if (response.data.success) {
       statistics.value = response.data.statistics
+      updateCharts()
     }
   } catch (error) {
     console.error('获取统计数据失败：', error)
@@ -171,20 +162,167 @@ const fetchStatistics = async () => {
   }
 }
 
-const fetchRecentUpdates = async () => {
-  try {
-    const response = await axios.get('/api/updates/recent')
-    if (response.data.success) {
-      recentUpdates.value = response.data.updates
-    }
-  } catch (error) {
-    console.error('获取最近更新失败：', error)
+const updateCharts = () => {
+  // 更新实体类型分布图表
+  if (entityChart) {
+    const entityTypeData = statistics.value.entityTypeCounts.map(item => ({
+      value: item.count,
+      name: getEntityTypeName(item.type)
+    }))
+    
+    entityChart.setOption({
+      tooltip: {
+        trigger: 'item',
+        formatter: '{b}: {c} ({d}%)'
+      },
+      legend: {
+        orient: 'vertical',
+        right: 10,
+        top: 'center',
+        type: 'scroll'
+      },
+      series: [
+        {
+          name: '实体类型分布',
+          type: 'pie',
+          radius: ['40%', '70%'],
+          center: ['40%', '50%'],
+          avoidLabelOverlap: true,
+          itemStyle: {
+            borderRadius: 10,
+            borderColor: '#fff',
+            borderWidth: 2
+          },
+          label: {
+            show: true,
+            formatter: '{b}: {c}'
+          },
+          emphasis: {
+            label: {
+              show: true,
+              fontSize: '14',
+              fontWeight: 'bold'
+            }
+          },
+          labelLine: {
+            show: true
+          },
+          data: entityTypeData
+        }
+      ]
+    })
   }
+
+  // 更新关系类型分布图表
+  if (relationChart) {
+    const relationTypeData = statistics.value.relationTypeCounts.map(item => ({
+      value: item.count,
+      name: getRelationTypeName(item.type)
+    }))
+    
+    relationChart.setOption({
+      tooltip: {
+        trigger: 'axis',
+        axisPointer: {
+          type: 'shadow'
+        }
+      },
+      grid: {
+        left: '3%',
+        right: '4%',
+        bottom: '3%',
+        containLabel: true
+      },
+      xAxis: {
+        type: 'category',
+        data: relationTypeData.map(item => item.name),
+        axisLabel: {
+          interval: 0,
+          rotate: 30
+        }
+      },
+      yAxis: {
+        type: 'value',
+        name: '数量'
+      },
+      series: [
+        {
+          name: '关系数量',
+          type: 'bar',
+          data: relationTypeData.map(item => item.value),
+          itemStyle: {
+            color: function(params) {
+              const colorList = [
+                '#91cc75', '#fac858', '#ee6666',
+                '#73c0de', '#3ba272', '#fc8452',
+                '#9a60b4', '#ea7ccc'
+              ]
+              return colorList[params.dataIndex % colorList.length]
+            }
+          },
+          label: {
+            show: true,
+            position: 'top'
+          }
+        }
+      ]
+    })
+  }
+}
+
+// 获取实体类型中文名称
+const getEntityTypeName = (type) => {
+  const typeMap = {
+    'Disease': '疾病',
+    'Symptom': '症状',
+    'Drug': '药品',
+    'Food': '食物',
+    'Check': '检查',
+    'Department': '科室',
+    'Producer': '生产商'
+  }
+  return typeMap[type] || type
+}
+
+// 获取关系类型中文名称
+const getRelationTypeName = (type) => {
+  const typeMap = {
+    'belongs_to': '属于',
+    'has_symptom': '有症状',
+    'has_drug': '有药品',
+    'has_food': '有食物',
+    'has_check': '有检查',
+    'produced_by': '生产商'
+  }
+  return typeMap[type] || type
 }
 
 onMounted(() => {
   fetchStatistics()
-  fetchRecentUpdates()
+  
+  // 初始化图表
+  if (entityTypeChart.value) {
+    entityChart = echarts.init(entityTypeChart.value)
+  }
+  if (relationTypeChart.value) {
+    relationChart = echarts.init(relationTypeChart.value)
+  }
+
+  // 监听窗口大小变化
+  window.addEventListener('resize', () => {
+    entityChart?.resize()
+    relationChart?.resize()
+  })
+})
+
+onUnmounted(() => {
+  // 销毁图表实例
+  entityChart?.dispose()
+  relationChart?.dispose()
+  window.removeEventListener('resize', () => {
+    entityChart?.resize()
+    relationChart?.resize()
+  })
 })
 </script>
 
@@ -212,5 +350,10 @@ onMounted(() => {
 
 .knowledge-image {
   background: linear-gradient(135deg, #722ed1 0%, #531dab 100%);
+}
+
+.chart-container {
+  height: 400px;
+  width: 100%;
 }
 </style> 

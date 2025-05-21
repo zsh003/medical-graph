@@ -21,13 +21,21 @@ def get_statistics():
         RETURN count(r) as count
         """
         relation_count = neo4j_service.graph.run(relation_query).data()[0]['count']
-
         # 获取疾病数量
         disease_query = """
         MATCH (n:Disease)
         RETURN count(n) as count
         """
+
+        # 获取各类型实体数量
+        entity_type_query = """
+        MATCH (n)
+        WITH labels(n) as types, count(n) as count
+        RETURN types[0] as type, count
+        ORDER BY count DESC
+        """
         disease_count = neo4j_service.graph.run(disease_query).data()[0]['count']
+        entity_type_counts = neo4j_service.graph.run(entity_type_query).data()
 
         # 获取药品数量
         drug_query = """
@@ -35,6 +43,14 @@ def get_statistics():
         RETURN count(n) as count
         """
         drug_count = neo4j_service.graph.run(drug_query).data()[0]['count']
+        # 获取各类型关系数量
+        relation_type_query = """
+        MATCH ()-[r]->()
+        WITH type(r) as type, count(r) as count
+        RETURN type, count
+        ORDER BY count DESC
+        """
+        relation_type_counts = neo4j_service.graph.run(relation_type_query).data()
 
         return jsonify({
             'success': True,
@@ -42,7 +58,9 @@ def get_statistics():
                 'entityCount': entity_count,
                 'relationCount': relation_count,
                 'diseaseCount': disease_count,
-                'drugCount': drug_count
+                'drugCount': drug_count,
+                'entityTypeCounts': entity_type_counts,
+                'relationTypeCounts': relation_type_counts
             }
         })
     except Exception as e:
