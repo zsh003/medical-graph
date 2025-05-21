@@ -225,6 +225,10 @@ const updateCharts = () => {
         trigger: 'axis',
         axisPointer: {
           type: 'shadow'
+        },
+        formatter: function(params) {
+          const param = params[0]
+          return `${param.name}<br/>数量：${param.value}`
         }
       },
       grid: {
@@ -238,7 +242,8 @@ const updateCharts = () => {
         data: relationTypeData.map(item => item.name),
         axisLabel: {
           interval: 0,
-          rotate: 30
+          rotate: 30,
+          fontSize: 12
         }
       },
       yAxis: {
@@ -262,7 +267,8 @@ const updateCharts = () => {
           },
           label: {
             show: true,
-            position: 'top'
+            position: 'top',
+            formatter: '{c}'
           }
         }
       ]
