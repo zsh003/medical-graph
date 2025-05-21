@@ -20,6 +20,9 @@
         <a-menu-item key="knowledge">
           <router-link to="/knowledge">知识更新</router-link>
         </a-menu-item>
+        <a-menu-item key="graph">
+          <router-link to="/graph">知识图谱</router-link>
+        </a-menu-item>
       </a-menu>
     </a-layout-header>
     <a-layout-content class="content">

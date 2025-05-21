@@ -5,7 +5,7 @@ from logging.handlers import RotatingFileHandler
 import os
 import requests
 from app.config import Config
-from app.routes import statistics
+from app.routes import statistics, graph
 from app.api import entity_recognition, relation_extraction, knowledge_update
 from app.services.neo4j_service import Neo4jService
 
@@ -48,6 +48,7 @@ def create_app():
     
     # 注册蓝图
     app.register_blueprint(statistics.bp)
+    app.register_blueprint(graph.bp, url_prefix='/api/graph')
     app.register_blueprint(entity_recognition.bp, url_prefix='/api/entity')
     app.register_blueprint(relation_extraction.bp, url_prefix='/api/relation')
     app.register_blueprint(knowledge_update.bp, url_prefix='/api/knowledge')

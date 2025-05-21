@@ -66,7 +66,8 @@ import {
   UserOutlined,
   VideoCameraOutlined,
   SettingOutlined,
-  LogoutOutlined
+  LogoutOutlined,
+  ClusterOutlined
 } from '@ant-design/icons-vue'
 import { useAuthStore } from '../stores/authStore.js'
 import router from '../router'

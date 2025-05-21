@@ -10,6 +10,7 @@ import AdminLoginView from "../views/admin/AdminLoginView.vue";
 import AdminLayout from "../layouts/AdminLayout.vue";
 import {message} from "ant-design-vue";
 
+
 const router = createRouter({
     history: createWebHistory(import.meta.env.BASE_URL),
     routes: [{
@@ -74,6 +75,15 @@ const router = createRouter({
             component: () => import('../views/KnowledgeView.vue'),
             meta: {
                 title: '知识更新',
+                requiresAuth: false
+            }
+        },
+        {
+            path: '/graph',
+            name: 'graph',
+            component: () => import('../views/GraphView.vue'),
+            meta: {
+                title: '知识图谱',
                 requiresAuth: false
             }
         },
