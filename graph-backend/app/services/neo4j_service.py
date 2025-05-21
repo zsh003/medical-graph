@@ -129,4 +129,60 @@ class Neo4jService:
         DELETE r
         """
         self.graph.run(query, source_id=source_id, target_id=target_id)
-        return True 
+        return True
+
+    def get_entity_count(self):
+        """获取实体总数"""
+        query = """
+        MATCH (n)
+        RETURN count(n) as count
+        """
+        result = self.graph.run(query).data()
+        return result[0]['count'] if result else 0
+
+    def get_relation_count(self):
+        """获取关系总数"""
+        query = """
+        MATCH ()-[r]->()
+        RETURN count(r) as count
+        """
+        result = self.graph.run(query).data()
+        return result[0]['count'] if result else 0
+
+    def get_entity_count_by_type(self, entity_type):
+        """获取指定类型的实体数量"""
+        query = """
+        MATCH (n {type: $type})
+        RETURN count(n) as count
+        """
+        result = self.graph.run(query, type=entity_type).data()
+        return result[0]['count'] if result else 0
+
+    def get_recent_entities(self, limit=5):
+        """获取最近的实体更新"""
+        query = """
+        MATCH (n)
+        WHERE n.update_time IS NOT NULL
+        RETURN n
+        ORDER BY n.update_time DESC
+        LIMIT $limit
+        """
+        result = self.graph.run(query, limit=limit).data()
+        return [dict(node['n']) for node in result]
+
+    def get_recent_relations(self, limit=5):
+        """获取最近的关系更新"""
+        query = """
+        MATCH (source)-[r]->(target)
+        WHERE r.update_time IS NOT NULL
+        RETURN source, r, target
+        ORDER BY r.update_time DESC
+        LIMIT $limit
+        """
+        result = self.graph.run(query, limit=limit).data()
+        return [{
+            'source': dict(node['source']),
+            'type': node['r'].type,
+            'target': dict(node['target']),
+            'update_time': node['r'].get('update_time')
+        } for node in result] 
