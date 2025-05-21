@@ -13,6 +13,7 @@ __pycache__/
 *.rar
 
 .venv/
+logs/*
 
 graph-backend/data/*
 

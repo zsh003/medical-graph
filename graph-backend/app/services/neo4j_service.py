@@ -159,7 +159,7 @@ class Neo4jService:
         return result[0]['count'] if result else 0
 
     def get_recent_entities(self, limit=5):
-        """获取最近的实体更新"""
+        """获取最近更新的实体"""
         query = """
         MATCH (n)
         WHERE n.update_time IS NOT NULL
@@ -168,10 +168,10 @@ class Neo4jService:
         LIMIT $limit
         """
         result = self.graph.run(query, limit=limit).data()
-        return [dict(node['n']) for node in result]
+        return [record['n'] for record in result]
 
     def get_recent_relations(self, limit=5):
-        """获取最近的关系更新"""
+        """获取最近更新的关系"""
         query = """
         MATCH (source)-[r]->(target)
         WHERE r.update_time IS NOT NULL
@@ -181,8 +181,8 @@ class Neo4jService:
         """
         result = self.graph.run(query, limit=limit).data()
         return [{
-            'source': dict(node['source']),
-            'type': node['r'].type,
-            'target': dict(node['target']),
-            'update_time': node['r'].get('update_time')
-        } for node in result] 
+            'source': record['source'],
+            'type': type(record['r']).__name__,
+            'target': record['target'],
+            'update_time': record['r'].get('update_time')
+        } for record in result] 
