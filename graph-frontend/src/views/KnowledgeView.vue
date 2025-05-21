@@ -189,7 +189,7 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { message } from 'ant-design-vue'
 import axios from 'axios'
 
@@ -221,7 +221,7 @@ const relationPagination = ref({
 const entityOptions = computed(() => {
   return entities.value.map(entity => ({
     label: `${entity.name} (${entity.type})`,
-    value: entity
+    value: entity.id
   }))
 })
 
@@ -388,8 +388,10 @@ const getRelationTypeColor = (type) => {
 }
 
 // 初始化
-searchEntities()
-searchRelations()
+onMounted(() => {
+  searchEntities()
+  searchRelations()
+})
 </script>
 
 <style scoped>
