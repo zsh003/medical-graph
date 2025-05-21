@@ -24,6 +24,7 @@ import InfoCard from '../components/InfoCard.vue'
 import { GraphRenderer } from '../services/graphRenderService.js'
 import { fetchGraphData } from '../services/graphService.js'
 import { getNodeRelations } from '../utils/graphUtils.js'
+import { getRelationTypeName } from '../config/relationConfig'
 
 export default {
   name: 'KnowledgeGraph',
@@ -147,6 +148,7 @@ export default {
           }
           return 0.6
         })
+        .text(d => getRelationTypeName(d.type))
 
       // 高亮相关节点
       const relatedNodeIds = new Set()
@@ -329,6 +331,16 @@ export default {
             .classed('hover', false)
         }
       })
+
+      // 修改关系标签显示为中文
+      links.selectAll('text')
+        .text(d => getRelationTypeName(d.type))
+        .attr('dy', -3)
+        .attr('text-anchor', 'middle')
+        .style('font-size', '12px')
+        .style('fill', '#666')
+        .style('pointer-events', 'none')
+
       currentNodes = nodes
       currentLinks = links
 

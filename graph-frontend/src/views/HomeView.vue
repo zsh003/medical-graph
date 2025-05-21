@@ -298,7 +298,15 @@ const getRelationTypeName = (type) => {
     'has_drug': '有药品',
     'has_food': '有食物',
     'has_check': '有检查',
-    'produced_by': '生产商'
+    'produced_by': '生产商',
+    'drugs_of': '治疗',
+    'recommand_drug': '推荐用药',
+    'recommand_eat': '推荐食用',
+    'need_check': '需要检查',
+    'no_eat': '忌食',
+    'do_eat': '宜食',
+    'common_drug': '常用药',
+    'acompany_with': '并发'
   }
   return typeMap[type] || type
 }

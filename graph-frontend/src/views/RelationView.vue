@@ -31,7 +31,7 @@
                     <template #title>
                       <span>{{ item.source.name }}</span>
                       <a-tag :color="getRelationTypeColor(item.type)" style="margin: 0 8px">
-                        {{ item.type }}
+                        {{ getRelationTypeName(item.type) }}
                       </a-tag>
                       <span>{{ item.target.name }}</span>
                     </template>
@@ -60,6 +60,7 @@
 import { ref } from 'vue'
 import { message } from 'ant-design-vue'
 import axios from 'axios'
+import { getRelationTypeName, getRelationTypeColor } from '../config/relationConfig'
 
 const inputText = ref('')
 const relations = ref([])
@@ -86,18 +87,6 @@ const extractRelations = async () => {
   } finally {
     loading.value = false
   }
-}
-
-const getRelationTypeColor = (type) => {
-  const colorMap = {
-    'belongs_to': 'purple',
-    'has_symptom': 'orange',
-    'has_drug': 'green',
-    'has_food': 'blue',
-    'has_check': 'cyan',
-    'produced_by': 'magenta'
-  }
-  return colorMap[type] || 'default'
 }
 </script>
 

@@ -197,6 +197,11 @@
 import { ref, computed, onMounted } from 'vue'
 import { message } from 'ant-design-vue'
 import axios from 'axios'
+import { 
+  getRelationTypeName, 
+  getRelationTypeColor, 
+  relationTypeOptions 
+} from '../config/relationConfig'
 
 // 状态变量
 const activeTab = ref('entity')
@@ -432,41 +437,6 @@ const getEntityTypeColor = (type) => {
   }
   return colorMap[type] || 'default'
 }
-
-const getRelationTypeColor = (type) => {
-  const colorMap = {
-    'belongs_to': 'purple',
-    'has_symptom': 'orange',
-    'has_drug': 'green',
-    'has_food': 'blue',
-    'has_check': 'cyan',
-    'produced_by': 'magenta'
-  }
-  return colorMap[type] || 'default'
-}
-
-// 获取关系类型中文名称
-const getRelationTypeName = (type) => {
-  const typeMap = {
-    'belongs_to': '属于',
-    'has_symptom': '有症状',
-    'has_drug': '有药品',
-    'has_food': '有食物',
-    'has_check': '有检查',
-    'produced_by': '生产商'
-  }
-  return typeMap[type] || type
-}
-
-// 获取关系类型选项
-const relationTypeOptions = [
-  { label: '属于', value: 'belongs_to' },
-  { label: '有症状', value: 'has_symptom' },
-  { label: '有药品', value: 'has_drug' },
-  { label: '有食物', value: 'has_food' },
-  { label: '有检查', value: 'has_check' },
-  { label: '生产商', value: 'produced_by' }
-]
 
 // 初始化
 onMounted(() => {
