@@ -17,12 +17,12 @@
 
 <script>
 import { ref, onMounted, onBeforeUnmount } from 'vue'
-import SearchBox from '../components/SearchBox.vue'
-import NodeDetail from '../components/NodeDetail.vue'
-import { GraphRenderer } from '../services/graphRenderService.js'
-import { fetchGraphData } from '../services/graphService.js'
-import { getNodeRelations } from '../utils/graphUtils.js'
-import { getEntityTypeColor } from '../config/entityConfig'
+import SearchBox from '../../components/SearchBox.vue'
+import NodeDetail from '../../components/NodeDetail.vue'
+import { GraphRenderer } from '../../services/graphRenderService.js'
+import { fetchGraphData } from '../../services/graphService.js'
+import { getNodeRelations } from '../../utils/graphUtils.js'
+import { getEntityTypeColor } from '../../config/entityConfig.js'
 
 export default {
   name: 'KnowledgeGraph',
@@ -326,6 +326,25 @@ export default {
         onNodeMouseover: handleNodeMouseover,
         onNodeMouseout: handleNodeMouseout
       })
+
+      // 设置节点文本
+      nodes.selectAll('text')
+        .attr('dy', 4)
+        .attr('text-anchor', 'middle')
+        .style('font-size', '12px')
+        .style('fill', '#fff')
+        .style('pointer-events', 'none')
+        .style('text-shadow', '0 1px 2px rgba(0,0,0,0.5)')
+
+      // 设置关系标签
+      links.selectAll('text')
+        .attr('dy', -3)
+        .attr('text-anchor', 'middle')
+        .style('font-size', '12px')
+        .style('fill', '#666')
+        .style('pointer-events', 'none')
+        .style('text-shadow', '0 1px 2px rgba(255,255,255,0.8)')
+        .text(d => getRelationTypeName(d.type))
 
       currentNodes = nodes
       currentLinks = links

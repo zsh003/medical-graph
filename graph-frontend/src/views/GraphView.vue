@@ -22,6 +22,13 @@
         </a-card>
       </a-col>
     </a-row>
+
+    <!-- 添加节点详情组件 -->
+    <NodeDetail
+      v-if="selectedNode"
+      :node="selectedNode"
+      :relations="nodeRelations"
+    />
   </div>
 </template>
 
@@ -30,11 +37,16 @@ import { ref, onMounted, onBeforeUnmount } from 'vue'
 import { message } from 'ant-design-vue'
 import axios from 'axios'
 import * as d3 from 'd3'
+import NodeDetail from '../components/NodeDetail.vue'
+import { getEntityTypeName, getEntityTypeColor, getRelationTypeName } from '../config/entityConfig'
 
 // 状态变量
 const searchText = ref('')
 const nodeLimit = ref(100)  // 默认限制100个节点
 const graphContainer = ref(null)
+const selectedNode = ref(null)
+const nodeRelations = ref({ incoming: [], outgoing: [] })
+const isNodeFixed = ref(false)  // 添加节点固定状态
 let simulation = null
 let svg = null
 let nodes = null
@@ -98,6 +110,7 @@ const updateGraph = (data) => {
       .on('start', dragstarted)
       .on('drag', dragged)
       .on('end', dragended))
+    .on('click', handleNodeClick)  // 添加点击事件
 
   // 添加节点圆圈
   nodes.append('circle')
@@ -106,13 +119,14 @@ const updateGraph = (data) => {
     .attr('stroke', '#fff')
     .attr('stroke-width', 2)
     .style('filter', 'drop-shadow(0 2px 4px rgba(0,0,0,0.2))')
+    .style('cursor', 'pointer')  // 添加指针样式
 
   // 添加节点文本
   nodes.append('text')
     .text(d => d.name)
     .attr('text-anchor', 'middle')
     .attr('dy', 4)
-    .attr('fill', d => getTextColor(d.type))
+    .attr('fill', '#fff')
     .style('font-size', '12px')
     .style('font-weight', 'bold')
     .style('pointer-events', 'none')
@@ -125,13 +139,20 @@ const updateGraph = (data) => {
     .enter()
     .append('text')
     .attr('class', 'relation')
-    .text(d => d.type)
+    .text(d => getRelationTypeName(d.type))
     .attr('text-anchor', 'middle')
     .attr('fill', '#333')
     .style('font-size', '12px')
     .style('font-weight', '500')
     .style('pointer-events', 'none')
     .style('text-shadow', '0 1px 1px rgba(255,255,255,0.8)')
+    .style('background-color', 'rgba(255,255,255,0.8)')  // 添加背景色
+    .style('padding', '2px 4px')  // 添加内边距
+    .style('border-radius', '4px')  // 添加圆角
+
+  // 添加鼠标悬停事件
+  nodes.on('mouseover', handleNodeMouseover)
+      .on('mouseout', handleNodeMouseout)
 
   // 更新力导向图
   simulation.nodes(data.nodes)
@@ -152,6 +173,124 @@ const updateGraph = (data) => {
       .attr('x', d => (d.source.x + d.target.x) / 2)
       .attr('y', d => (d.source.y + d.target.y) / 2)
   })
+}
+
+// 处理节点鼠标悬停
+const handleNodeMouseover = (event, d) => {
+  if (!isNodeFixed.value) {  // 只有在节点未固定时才显示悬停效果
+    selectedNode.value = d
+    // 获取节点关系
+    nodeRelations.value = {
+      incoming: simulation.force('link').links().filter(link => link.target.id === d.id),
+      outgoing: simulation.force('link').links().filter(link => link.source.id === d.id)
+    }
+    
+    // 高亮相关节点和连接
+    highlightRelatedNodes(d)
+  }
+}
+
+// 处理节点鼠标移出
+const handleNodeMouseout = () => {
+  if (!isNodeFixed.value) {  // 只有在节点未固定时才隐藏悬停效果
+    selectedNode.value = null
+    nodeRelations.value = { incoming: [], outgoing: [] }
+    
+    // 重置所有节点样式
+    resetNodeStyles()
+  }
+}
+
+// 处理节点点击
+const handleNodeClick = (event, d) => {
+  if (isNodeFixed.value && selectedNode.value && selectedNode.value.id === d.id) {
+    // 如果点击的是当前固定节点，则取消固定
+    isNodeFixed.value = false
+    selectedNode.value = null
+    nodeRelations.value = { incoming: [], outgoing: [] }
+    resetNodeStyles()
+  } else {
+    // 固定新节点
+    isNodeFixed.value = true
+    selectedNode.value = d
+    nodeRelations.value = {
+      incoming: simulation.force('link').links().filter(link => link.target.id === d.id),
+      outgoing: simulation.force('link').links().filter(link => link.source.id === d.id)
+    }
+    highlightRelatedNodes(d)
+  }
+}
+
+// 重置节点样式
+const resetNodeStyles = () => {
+  nodes.selectAll('circle')
+    .attr('fill', d => getNodeColor(d.type))
+    .attr('stroke', '#fff')
+    .attr('stroke-width', 2)
+    .style('filter', 'drop-shadow(0 2px 4px rgba(0,0,0,0.2))')
+
+  links
+    .attr('stroke', '#666')
+    .attr('stroke-opacity', 0.8)
+    .attr('stroke-width', 1.5)
+}
+
+// 高亮相关节点
+const highlightRelatedNodes = (targetNode) => {
+  // 高亮目标节点
+  nodes.selectAll('circle')
+    .attr('fill', d => {
+      if (d.id === targetNode.id) return '#1890ff'
+      return getNodeColor(d.type)
+    })
+    .attr('stroke', d => {
+      if (d.id === targetNode.id) return '#fff'
+      return '#fff'
+    })
+    .attr('stroke-width', d => {
+      if (d.id === targetNode.id) return 3
+      return 2
+    })
+    .style('filter', d => {
+      if (d.id === targetNode.id) return 'drop-shadow(0 0 8px rgba(24, 144, 255, 0.6))'
+      return 'drop-shadow(0 2px 4px rgba(0,0,0,0.2))'
+    })
+
+  // 找到相关的连接
+  const relatedLinks = simulation.force('link').links().filter(d =>
+    d.source.id === targetNode.id || d.target.id === targetNode.id
+  )
+
+  // 高亮相关连接
+  links
+    .attr('stroke', d => {
+      if (d.source.id === targetNode.id || d.target.id === targetNode.id) {
+        return '#1890ff'
+      }
+      return '#666'
+    })
+    .attr('stroke-opacity', d => {
+      if (d.source.id === targetNode.id || d.target.id === targetNode.id) {
+        return 1
+      }
+      return 0.4
+    })
+    .attr('stroke-width', d => {
+      if (d.source.id === targetNode.id || d.target.id === targetNode.id) {
+        return 2
+      }
+      return 1.5
+    })
+
+  // 高亮相关节点文本
+  nodes.selectAll('text')
+    .attr('opacity', d => {
+      if (d.id === targetNode.id || relatedLinks.some(link => 
+        link.source.id === d.id || link.target.id === d.id)) {
+        return 1
+      }
+      return 0.4
+    })
 }
 
 // 处理搜索
@@ -196,30 +335,7 @@ const dragended = (event, d) => {
 
 // 获取节点颜色
 const getNodeColor = (type) => {
-  const colorMap = {
-    'Disease': '#ff7875',
-    'Symptom': '#73d13d',
-    'Drug': '#40a9ff',
-    'Food': '#ffc069',
-    'Check': '#b37feb',
-    'Department': '#36cfc9',
-    'Producer': '#ff85c0'
-  }
-  return colorMap[type] || '#d9d9d9'
-}
-
-// 获取节点文字颜色
-const getTextColor = (type) => {
-  const colorMap = {
-    'Disease': '#fff',
-    'Symptom': '#fff',
-    'Drug': '#fff',
-    'Food': '#fff',
-    'Check': '#fff',
-    'Department': '#fff',
-    'Producer': '#fff'
-  }
-  return colorMap[type] || '#fff'
+  return getEntityTypeColor(type)
 }
 
 // 生命周期钩子
@@ -248,20 +364,26 @@ onBeforeUnmount(() => {
 <style scoped>
 .graph-view {
   padding: 24px;
+  background-color: #f0f7f0;  /* 添加浅绿色背景 */
 }
 
 .search-container {
   display: flex;
   align-items: center;
   margin-bottom: 16px;
+  background: rgba(255, 255, 255, 0.9);  /* 添加半透明背景 */
+  padding: 16px;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
 .graph-container {
   width: 100%;
   height: calc(100vh - 200px);
-  background-color: #c6e7d4;
-  border-radius: 4px;
+  background-color: #c6e7c8;  /* 保持浅绿色背景 */
+  border-radius: 8px;
   overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);  /* 添加阴影效果 */
 }
 
 :deep(circle) {
@@ -273,5 +395,18 @@ onBeforeUnmount(() => {
   stroke: #1890ff;
   stroke-width: 3px;
   filter: drop-shadow(0 0 8px rgba(24, 144, 255, 0.6));
+}
+
+:deep(.ant-card) {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+}
+
+:deep(.ant-input-search) {
+  background: white;
+}
+
+:deep(.ant-input-number) {
+  background: white;
 }
 </style> 

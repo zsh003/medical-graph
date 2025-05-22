@@ -1,6 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import { beforeEachGuard, afterEachGuard, onErrorHandler } from './guards'
-import KnowledgeGraph from "../views/KnowledgeGraph.vue";
 import LogView from "../views/user/LogView.vue";
 import RegisterView from "../views/user/RegisterView.vue";
 import BasicLayout from "../layouts/BasicLayout.vue";

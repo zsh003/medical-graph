@@ -84,7 +84,7 @@ const currentTabComponent = computed(() => {
     case 'knowledge-management':
       return defineAsyncComponent(() => import('../views/admin/KnowledgeManage.vue'))
      case 'knowledge-graph':
-       return defineAsyncComponent(() => import('../views/KnowledgeGraph.vue'))
+       return defineAsyncComponent(() => import('../views/admin/KnowledgeGraph.vue'))
     case 'ner-view':
       return defineAsyncComponent(() => import('../views/admin/NERView.vue'))
     default:

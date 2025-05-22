@@ -42,7 +42,7 @@ import {
   LogoutOutlined,
   SettingOutlined, TeamOutlined, VideoCameraFilled, ClockCircleOutlined
 } from '@ant-design/icons-vue'
-import KnowledgeGraph from "../views/KnowledgeGraph.vue";
+import KnowledgeGraph from "../views/admin/KnowledgeGraph.vue";
 import { useRouter } from 'vue-router'
 import {useAuthStore} from "../stores/authStore.js";
 import InfoChange from "../views/user/InfoChange.vue";
