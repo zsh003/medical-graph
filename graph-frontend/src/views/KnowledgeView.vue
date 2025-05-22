@@ -200,13 +200,13 @@ import axios from 'axios'
 import { 
   getRelationTypeName, 
   getRelationTypeColor, 
-  relationTypeOptions,
-  getRelationSourceTypes,
-  getRelationTargetTypes
+  relationTypeOptions
 } from '../config/relationConfig'
 import {
   getEntityTypeName,
   getEntityTypeColor,
+  getRelationSourceTypes,
+  getRelationTargetTypes,
   entityTypes
 } from '../config/entityConfig'
 

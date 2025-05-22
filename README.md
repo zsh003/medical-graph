@@ -11,24 +11,34 @@
 
 ## 三、主要功能
 1. 实体识别
-   - 支持多种医学实体类型的识别
+   - 支持多种医学实体类型的识别（疾病、症状、药品、检查等）
    - 实体属性管理和更新
    - 实体关系可视化
+   - 批量导入实体数据
 
 2. 关系抽取
    - 自动识别实体间关系
    - 关系类型管理
    - 关系属性维护
+   - 支持多种关系类型（治疗、检查、症状等）
 
 3. 知识更新
    - 支持增量更新
    - 更新历史记录
    - 数据一致性检查
+   - 批量数据导入
 
 4. 数据可视化
    - 知识图谱可视化展示
    - 实体关系网络图
    - 统计分析图表
+   - 交互式节点探索
+
+5. 系统管理
+   - 用户权限管理
+   - 系统配置管理
+   - 数据备份恢复
+   - 操作日志记录
 
 ## 四、项目结构
 ```
@@ -39,6 +49,9 @@ medical-graph/
 │   │   ├── views/         # 页面
 │   │   ├── router/        # 路由
 │   │   ├── store/         # 状态管理
+│   │   ├── services/      # API服务
+│   │   ├── utils/         # 工具函数
+│   │   ├── config/        # 配置文件
 │   │   └── assets/        # 静态资源
 │   └── package.json
 │
@@ -46,6 +59,9 @@ medical-graph/
     ├── app/
     │   ├── routes/        # 路由
     │   ├── services/      # 服务
+    │   ├── models/        # 数据模型
+    │   ├── utils/         # 工具函数
+    │   ├── api/          # API接口
     │   └── config.py      # 配置
     └── requirements.txt
 ```
@@ -53,25 +69,55 @@ medical-graph/
 ## 五、快速开始
 
 ### 1. 环境要求
-- Python 3.11+
+- Python 3.11.x
 - Node.js 16+
-- Neo4j 4.4+
+- Neo4j 5.4+
+- Docker（可选，用于运行Neo4j）
 
-### 2. 后端启动
+### 2. Neo4j数据库配置
+- 启动Docker容器
+```bash
+cd graph-backend/scripts/neo4j_docker/
+docker-compose -f server.yaml build --no-cache
+docker-compose -f server.yaml up -d
+```
+- 修改数据库密码
+访问Neo4j前端：http://localhost:7474，使用默认账号密码登录`neo4j/neo4j`，会要求强制重设密码，这里设置为`12345678`，可以在`graph-backend/app/config.py`中进行自定义设置。
+- 导入示例数据
+```bash
+cd graph-backend
+python scripts/import_data.py
+```
+- 关闭Docker
+```bash
+docker-compose -f server.yaml down
+```
+
+- 简单的neo4j查询
+
+```sql
+MATCH (n) RETURN (n) LIMIT 50  --查询50个节点
+MATCH (n) RETURN COUNT(n)  --查询总节点数
+MATCH (n)-[r]->() RETURN COUNT(r)  --查询总关系数
+MATCH (n) DETACH DELETE n  --删除所有节点
+```
+
+### 3. 后端启动
+
 ```bash
 cd graph-backend
 pip install -r requirements.txt
 python run.py
 ```
 
-### 3. 前端启动
+### 4. 前端启动
 ```bash
 cd graph-frontend
 npm install
 npm run dev
 ```
 
-### 4. 访问系统
+### 5. 访问系统
 - 前端地址：http://localhost:3000
 - 后端API：http://localhost:5000
 
@@ -86,12 +132,19 @@ npm run dev
 - `POST /api/entities` - 创建新实体
 - `PUT /api/entities/:id` - 更新实体
 - `DELETE /api/entities/:id` - 删除实体
+- `POST /api/entities/batch` - 批量导入实体
 
 ### 关系接口
 - `GET /api/relations` - 获取关系列表
 - `POST /api/relations` - 创建新关系
 - `PUT /api/relations/:id` - 更新关系
 - `DELETE /api/relations/:id` - 删除关系
+- `POST /api/relations/batch` - 批量导入关系
+
+### 图谱接口
+- `GET /api/graph` - 获取知识图谱数据
+- `GET /api/graph/search` - 搜索图谱节点
+- `GET /api/graph/statistics` - 获取图谱统计信息
 
 ## 七、开发指南
 
