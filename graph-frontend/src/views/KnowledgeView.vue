@@ -200,8 +200,15 @@ import axios from 'axios'
 import { 
   getRelationTypeName, 
   getRelationTypeColor, 
-  relationTypeOptions 
+  relationTypeOptions,
+  getRelationSourceTypes,
+  getRelationTargetTypes
 } from '../config/relationConfig'
+import {
+  getEntityTypeName,
+  getEntityTypeColor,
+  entityTypes
+} from '../config/entityConfig'
 
 // 状态变量
 const activeTab = ref('entity')
@@ -232,7 +239,7 @@ const relationPagination = ref({
 // 实体选项
 const entityOptions = computed(() => {
   return entities.value.map(entity => ({
-    label: `${entity.name} (${entity.type})`,
+    label: `${entity.name} (${getEntityTypeName(entity.type)})`,
     value: entity.id
   }))
 })
@@ -241,20 +248,11 @@ const entityOptions = computed(() => {
 const sourceEntityOptions = computed(() => {
   if (!selectedRelation.value?.type) return []
   
-  const typeMap = {
-    'belongs_to': ['Disease'],
-    'has_symptom': ['Disease'],
-    'has_drug': ['Disease'],
-    'has_food': ['Disease'],
-    'has_check': ['Disease'],
-    'produced_by': ['Drug']
-  }
-  
-  const allowedTypes = typeMap[selectedRelation.value.type] || []
+  const allowedTypes = getRelationSourceTypes(selectedRelation.value.type)
   return entities.value
     .filter(entity => allowedTypes.includes(entity.type))
     .map(entity => ({
-      label: `${entity.name} (${entity.type})`,
+      label: `${entity.name} (${getEntityTypeName(entity.type)})`,
       value: entity.id
     }))
 })
@@ -263,22 +261,21 @@ const sourceEntityOptions = computed(() => {
 const targetEntityOptions = computed(() => {
   if (!selectedRelation.value?.type) return []
   
-  const typeMap = {
-    'belongs_to': ['Department'],
-    'has_symptom': ['Symptom'],
-    'has_drug': ['Drug'],
-    'has_food': ['Food'],
-    'has_check': ['Check'],
-    'produced_by': ['Producer']
-  }
-  
-  const allowedTypes = typeMap[selectedRelation.value.type] || []
+  const allowedTypes = getRelationTargetTypes(selectedRelation.value.type)
   return entities.value
     .filter(entity => allowedTypes.includes(entity.type))
     .map(entity => ({
-      label: `${entity.name} (${entity.type})`,
+      label: `${entity.name} (${getEntityTypeName(entity.type)})`,
       value: entity.id
     }))
+})
+
+// 实体类型选项
+const entityTypeOptions = computed(() => {
+  return Object.entries(entityTypes).map(([value, config]) => ({
+    label: config.name,
+    value: value
+  }))
 })
 
 // 获取所有实体（不分页）
@@ -422,20 +419,6 @@ const updateRelation = async () => {
   } catch (error) {
     message.error('更新失败：' + error.message)
   }
-}
-
-// 工具方法
-const getEntityTypeColor = (type) => {
-  const colorMap = {
-    'Disease': 'red',
-    'Symptom': 'orange',
-    'Drug': 'green',
-    'Food': 'blue',
-    'Check': 'purple',
-    'Department': 'cyan',
-    'Producer': 'magenta'
-  }
-  return colorMap[type] || 'default'
 }
 
 // 初始化

@@ -57,7 +57,7 @@
       <a-col :span="24">
         <a-card title="功能入口" :bordered="false">
           <a-row :gutter="16">
-            <a-col :span="8">
+            <a-col :span="6">
               <a-card hoverable @click="$router.push('/entity')">
                 <template #cover>
                   <div class="feature-image entity-image">
@@ -71,7 +71,7 @@
                 </a-card-meta>
               </a-card>
             </a-col>
-            <a-col :span="8">
+            <a-col :span="6">
               <a-card hoverable @click="$router.push('/relation')">
                 <template #cover>
                   <div class="feature-image relation-image">
@@ -85,7 +85,7 @@
                 </a-card-meta>
               </a-card>
             </a-col>
-            <a-col :span="8">
+            <a-col :span="6">
               <a-card hoverable @click="$router.push('/knowledge')">
                 <template #cover>
                   <div class="feature-image knowledge-image">
@@ -95,6 +95,20 @@
                 <a-card-meta title="知识更新">
                   <template #description>
                     管理知识图谱中的实体和关系
+                  </template>
+                </a-card-meta>
+              </a-card>
+            </a-col>
+            <a-col :span="6">
+              <a-card hoverable @click="$router.push('/graph')">
+                <template #cover>
+                  <div class="feature-image graph-image">
+                    <project-outlined />
+                  </div>
+                </template>
+                <a-card-meta title="知识图谱">
+                  <template #description>
+                    可视化展示知识图谱网络结构
                   </template>
                 </a-card-meta>
               </a-card>
@@ -129,10 +143,13 @@ import {
   LinkOutlined,
   MedicineBoxOutlined,
   ExperimentOutlined,
-  SearchOutlined
+  SearchOutlined,
+  ProjectOutlined
 } from '@ant-design/icons-vue'
 import axios from 'axios'
 import * as echarts from 'echarts'
+import { getEntityTypeName, getEntityTypeColor } from '../config/entityConfig'
+import { getRelationTypeName, getRelationTypeColor } from '../config/relationConfig'
 
 const loading = ref(false)
 const statistics = ref({
@@ -276,41 +293,6 @@ const updateCharts = () => {
   }
 }
 
-// 获取实体类型中文名称
-const getEntityTypeName = (type) => {
-  const typeMap = {
-    'Disease': '疾病',
-    'Symptom': '症状',
-    'Drug': '药品',
-    'Food': '食物',
-    'Check': '检查',
-    'Department': '科室',
-    'Producer': '生产商'
-  }
-  return typeMap[type] || type
-}
-
-// 获取关系类型中文名称
-const getRelationTypeName = (type) => {
-  const typeMap = {
-    'belongs_to': '属于',
-    'has_symptom': '有症状',
-    'has_drug': '有药品',
-    'has_food': '有食物',
-    'has_check': '有检查',
-    'produced_by': '生产商',
-    'drugs_of': '治疗',
-    'recommand_drug': '推荐用药',
-    'recommand_eat': '推荐食用',
-    'need_check': '需要检查',
-    'no_eat': '忌食',
-    'do_eat': '宜食',
-    'common_drug': '常用药',
-    'acompany_with': '并发'
-  }
-  return typeMap[type] || type
-}
-
 onMounted(() => {
   fetchStatistics()
   
@@ -364,6 +346,10 @@ onUnmounted(() => {
 
 .knowledge-image {
   background: linear-gradient(135deg, #722ed1 0%, #531dab 100%);
+}
+
+.graph-image {
+  background: linear-gradient(135deg, #fa8c16 0%, #d46b08 100%);
 }
 
 .chart-container {
