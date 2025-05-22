@@ -53,7 +53,7 @@ import { ref } from 'vue'
 import { message } from 'ant-design-vue'
 import axios from 'axios'
 
-const inputText = ref('')
+const inputText = ref('患者出现发热、咳嗽等症状，建议服用阿莫西林颗粒进行治疗，经诊断为肺炎。')
 const entities = ref([])
 const loading = ref(false)
 

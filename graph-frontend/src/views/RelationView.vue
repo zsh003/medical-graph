@@ -36,14 +36,15 @@
                       <span>{{ item.target.name }}</span>
                     </template>
                     <template #extra>
-                      <a-tag color="blue">{{ item.source.type }}</a-tag>
-                      <a-tag color="green">{{ item.target.type }}</a-tag>
+                      <a-tag :color="getEntityTypeColor(item.source.type)">{{ getEntityTypeName(item.source.type) }}</a-tag>
+                      <a-tag :color="getEntityTypeColor(item.target.type)">{{ getEntityTypeName(item.target.type) }}</a-tag>
                     </template>
-                    <p v-if="item.properties">
-                      <span v-for="(value, key) in item.properties" :key="key" style="margin-right: 16px">
-                        {{ key }}: {{ value }}
-                      </span>
-                    </p>
+                    <div v-if="item.properties" class="relation-properties">
+                      <p v-for="(value, key) in item.properties" :key="key" class="property-item">
+                        <span class="property-label">{{ key }}:</span>
+                        <span class="property-value">{{ value }}</span>
+                      </p>
+                    </div>
                   </a-card>
                 </a-list-item>
               </template>
@@ -60,9 +61,10 @@
 import { ref } from 'vue'
 import { message } from 'ant-design-vue'
 import axios from 'axios'
+import { getEntityTypeName, getEntityTypeColor } from '../config/entityConfig'
 import { getRelationTypeName, getRelationTypeColor } from '../config/relationConfig'
 
-const inputText = ref('')
+const inputText = ref('肺泡蛋白质沉积症是否会造成乏力、呼吸困难等症状？')
 const relations = ref([])
 const loading = ref(false)
 
@@ -93,5 +95,25 @@ const extractRelations = async () => {
 <style scoped>
 .relation-view {
   padding: 24px;
+}
+
+.relation-properties {
+  margin-top: 8px;
+}
+
+.property-item {
+  margin: 4px 0;
+  display: flex;
+  align-items: baseline;
+}
+
+.property-label {
+  font-weight: bold;
+  margin-right: 8px;
+  color: #666;
+}
+
+.property-value {
+  color: #333;
 }
 </style> 

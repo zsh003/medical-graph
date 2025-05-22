@@ -25,30 +25,35 @@ def extract_relations():
         relations = text_processor.extract_relations(text)
         current_app.logger.info(f'识别到 {len(relations)} 个关系')
         
-        # 从Neo4j中获取关系详细信息
-        enriched_relations = []
+        # 处理关系数据，确保与前端配置一致
+        processed_relations = []
         for relation in relations:
-            current_app.logger.debug(f'处理关系: {relation["source"]} - {relation["type"]} - {relation["target"]}')
-            relation_info = neo4j_service.get_relation_info(
-                relation['source'],
-                relation['target'],
-                relation['type']
-            )
-            if relation_info:
-                enriched_relations.append({
-                    'source': relation['source'],
-                    'target': relation['target'],
-                    'type': relation['type'],
-                    'info': relation_info
-                })
-                current_app.logger.debug(f'关系已找到详细信息')
-            else:
-                current_app.logger.warning(f'关系未找到详细信息')
+            # 确保关系类型与前端配置一致
+            relation_type = relation['type'].lower()
+            # if relation_type not in text_processor.relation_types:
+            #     continue
+                
+            # 构建符合前端展示格式的关系数据
+            processed_relation = {
+                'source': {
+                    'name': relation['source']['name'],
+                    'type': relation['source']['type'],
+                    'info': relation['source']['info']
+                },
+                'target': {
+                    'name': relation['target']['name'],
+                    'type': relation['target']['type'],
+                    'info': relation['target']['info']
+                },
+                'type': relation_type,
+                'properties': relation['properties']
+            }
+            processed_relations.append(processed_relation)
         
-        current_app.logger.info(f'成功处理 {len(enriched_relations)} 个关系')
+        current_app.logger.info(f'成功处理 {len(processed_relations)} 个关系')
         return jsonify({
             'success': True,
-            'relations': enriched_relations
+            'relations': processed_relations
         })
         
     except Exception as e:
